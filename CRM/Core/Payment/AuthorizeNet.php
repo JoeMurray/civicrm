@@ -42,7 +42,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
      * @static
      */
     static private $_singleton = null;
-    
+
     /**
      * Constructor
      *
@@ -60,22 +60,22 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         $this->_setParam( 'paymentKey' , $paymentProcessor['password']  );
         $this->_setParam( 'paymentType', 'AIM' );
         $this->_setParam( 'md5Hash'    , $paymentProcessor['signature'] );
-        
+
         $this->_setParam( 'emailCustomer', 'TRUE' );
         $this->_setParam( 'timestamp', time( ) );
         srand( time( ) );
         $this->_setParam( 'sequence', rand( 1, 1000 ) );
     }
 
-    /** 
-     * singleton function used to manage this object 
-     * 
+    /**
+     * singleton function used to manage this object
+     *
      * @param string $mode the mode of operation: live or test
      *
-     * @return object 
-     * @static 
-     * 
-     */ 
+     * @return object
+     * @static
+     *
+     */
     static function &singleton( $mode, &$paymentProcessor ) {
         $processorName = $paymentProcessor['name'];
         if (self::$_singleton[$processorName] === null ) {
@@ -95,7 +95,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         if ( ! defined( 'CURLOPT_SSLCERT' ) ) {
             return self::error( 9001, 'Authorize.Net requires curl with SSL support' );
         }
-        
+
         /*
          * recurpayment function does not compile an array & then proces it -
          * - the tpl does the transformation so adding call to hook here
@@ -107,8 +107,8 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
              CRM_Utils_Hook::alterPaymentProcessorParams( $this,
                                                      $params,
                                                      $newParams );
-               
-        }       
+
+        }
         foreach ( $newParams as $field => $value ) {
             $this->_setParam( $field, $value );
         }
@@ -170,9 +170,9 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
             $errormsg = $response_fields[2] . ' ' . $response_fields[3];
             return self::error( $response_fields[1], $errormsg );
         }
-        
+
         // Success
-        
+
         // test mode always returns trxn_id = 0
         // also live mode in CiviCRM with test mode set in
         // Authorize.Net return $response_fields[6] = 0
@@ -193,7 +193,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
 
         return $params;
     }
-    
+
     /**
      * Submit an Automated Recurring Billing subscription
      *
@@ -239,8 +239,8 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         $template->assign( 'apiLogin', $this->_getParam( 'apiLogin' ) );
         $template->assign( 'paymentKey', $this->_getParam( 'paymentKey' ) );
         $template->assign( 'refId', substr( $this->_getParam( 'invoiceID' ), 0, 20 ) );
-        
-        //for recurring, carry first contribution id  
+
+        //for recurring, carry first contribution id
         $template->assign( 'invoiceNumber', $this->_getParam( 'contributionID' ) );
         $firstPaymentDate = $this->_getParam('receive_date');
         if(!empty($firstPaymentDate)){
@@ -271,10 +271,10 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         $template->assign( 'billingState', $this->_getParam('state_province') );
         $template->assign( 'billingZip', $this->_getParam('postal_code') );
         $template->assign( 'billingCountry', $this->_getParam('country') );
-        
+
         $arbXML = $template->fetch( 'CRM/Contribute/Form/Contribution/AuthorizeNetARB.tpl' );
         // submit to authorize.net
-
+watchdog('anet', $arbXML);
         $submit = curl_init( $this->_paymentProcessor['url_recur'] );
         if ( !$submit ) {
             return self::error(9002, 'Could not initiate connection to payment gateway');
@@ -285,7 +285,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         curl_setopt($submit, CURLOPT_POSTFIELDS, $arbXML);
         curl_setopt($submit, CURLOPT_POST, 1);
         curl_setopt($submit, CURLOPT_SSL_VERIFYPEER, 0);
-        
+
         $response = curl_exec($submit);
 
         if ( !$response ) {
@@ -300,7 +300,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         }
 
         // update recur processor_id with subscriptionId
-        CRM_Core_DAO::setFieldValue( 'CRM_Contribute_DAO_ContributionRecur', $params['contributionRecurID'], 
+        CRM_Core_DAO::setFieldValue( 'CRM_Contribute_DAO_ContributionRecur', $params['contributionRecurID'],
                                      'processor_id', $responseFields['subscriptionId'] );
         //only impact of assigning this here is is can be used to cancel the subscription in an automated test
         // if it isn't cancelled a duplicate transaction error occurs
@@ -312,7 +312,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
 
   function _getAuthorizeNetFields( ) {
     $amount = $this->_getParam('total_amount');//Total amount is from the form contribution field
-    if(empty($amount)){//CRM-9894 would this ever be the case?? 
+    if(empty($amount)){//CRM-9894 would this ever be the case??
       $amount = $this->_getParam('amount');
     }
         $fields = array();
@@ -413,7 +413,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
             return true;
         }
         $loginid    = $this->_getParam( 'apiLogin' );
-        $hashString = $ipn ? ( $md5Hash . $transaction_id . $amount ) : 
+        $hashString = $ipn ? ( $md5Hash . $transaction_id . $amount ) :
             ( $md5Hash . $loginid . $transaction_id . $amount );
         $result     = strtoupper ( md5( $hashString ) );
 
@@ -458,12 +458,12 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
             if ( $data[0] == '"' ) {
                 // handle quoted fields
                 preg_match( '/^"(([^"]|\\")*?)",?(.*)$/', $data, $matches );
-                
+
                 $fields[] = str_replace( "''", '"', $matches[1] );
                 $data     = $matches[3];
             } else {
                 preg_match( '/^([^,]*),?(.*)$/', $data, $matches );
-                
+
                 $fields[] = $matches[1];
                 $data     = $matches[2];
             }
@@ -474,7 +474,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
     /**
      * Extract variables from returned XML
      *
-     * Function is from Authorize.Net sample code, and used 
+     * Function is from Authorize.Net sample code, and used
      * to prevent the requirement of XML functions.
      *
      * @param string $content XML reply from Authorize.Net
@@ -540,7 +540,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
      * @param string $field
      * @param mixed $value
      * @return bool false if value is not a scalar, true if successful
-     */ 
+     */
     function _setParam( $field, $value ) {
         if ( ! is_scalar($value) ) {
             return false;
@@ -550,7 +550,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
     }
 
     /**
-     * This function checks to see if we have the right config values 
+     * This function checks to see if we have the right config values
      *
      * @return string the error message if any
      * @public
@@ -560,7 +560,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         if ( empty( $this->_paymentProcessor['user_name'] ) ) {
             $error[] = ts( 'APILogin is not set for this payment processor' );
         }
-        
+
         if ( empty( $this->_paymentProcessor['password'] ) ) {
             $error[] = ts( 'Key is not set for this payment processor' );
         }
@@ -578,7 +578,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
             $contactID = CRM_Core_DAO::getFieldValue( "CRM_Member_DAO_Membership", $entityID, "contact_id" );
             $checksumValue = CRM_Contact_BAO_Contact_Utils::generateChecksum( $contactID, null, 'inf' );
 
-            return CRM_Utils_System::url( 'civicrm/contribute/unsubscribe', 
+            return CRM_Utils_System::url( 'civicrm/contribute/unsubscribe',
                                           "reset=1&mid={$entityID}&cs={$checksumValue}", true, null, false, false );
         }
 
@@ -609,7 +609,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         curl_setopt($submit, CURLOPT_POSTFIELDS, $arbXML);
         curl_setopt($submit, CURLOPT_POST, 1);
         curl_setopt($submit, CURLOPT_SSL_VERIFYPEER, 0);
-        
+
         $response = curl_exec($submit);
 
         if ( !$response ) {
@@ -627,4 +627,4 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         // carry on cancelation procedure
         return true;
     }
-}         
+}
