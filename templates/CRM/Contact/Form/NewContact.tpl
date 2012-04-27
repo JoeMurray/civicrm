@@ -118,7 +118,7 @@
       {/literal}{/if}{literal}
 
       var contactElement = '#contact_' + blockNo;
-      var contactHiddenElement = 'input[name="contact_select_id[' + blockNo +']"]';
+      var contactHiddenElement = 'input[name="{/literal}{$prefix}{literal}contact_select_id[' + blockNo +']"]';
       cj( contactElement ).autocomplete( contactUrl, { 
           selectFirst : false, matchContains: true, minChars: 1
       }).result( function(event, data, formatted) { 
