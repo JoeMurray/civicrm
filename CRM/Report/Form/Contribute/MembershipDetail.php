@@ -26,7 +26,7 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 */
-
+require_once 'CRM/Report/Form.php';
 /**
  *
  * @package CRM
