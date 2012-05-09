@@ -27,6 +27,8 @@
  +--------------------------------------------------------------------+
 */
 require_once 'CRM/Report/Form.php';
+require_once 'CRM/Contribute/PseudoConstant.php';
+require_once 'CRM/Member/PseudoConstant.php';
 /**
  *
  * @package CRM
@@ -443,20 +445,21 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
     $this->_select = "SELECT " . implode(', ', $select) . " ";
   }
 
-  function from() {
+ function from() {
 
       $this->_from = "
         FROM  civicrm_contribution {$this->_aliases['civicrm_contribution']} 
               INNER JOIN civicrm_contact  {$this->_aliases['civicrm_contact']} {$this->_aclFrom}
                       ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_contribution']}.contact_id AND {$this->_aliases['civicrm_contribution']}.is_test = 0 
-             INNER JOIN civicrm_membership {$this->_aliases['civicrm_membership']} 
-                      ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_membership']}.contact_id  AND {$this->_aliases['civicrm_membership']}.is_test = 0
+              INNER JOIN civicrm_membership_payment {$this->_aliases['civicrm_membership_payment']}
+                      ON {$this->_aliases['civicrm_contribution']}.id = {$this->_aliases['civicrm_membership_payment']}.contribution_id
+                      
+              INNER JOIN civicrm_membership {$this->_aliases['civicrm_membership']} 
+                      ON {$this->_aliases['civicrm_membership_payment']}.membership_id = {$this->_aliases['civicrm_membership']}.id  AND {$this->_aliases['civicrm_membership']}.is_test = 0
               LEFT  JOIN civicrm_membership_status {$this->_aliases['civicrm_membership_status']}
                           ON {$this->_aliases['civicrm_membership_status']}.id = 
                              {$this->_aliases['civicrm_membership']}.status_id 
-             INNER JOIN civicrm_membership_payment {$this->_aliases['civicrm_membership_payment']}
-                      ON {$this->_aliases['civicrm_membership']}.id = {$this->_aliases['civicrm_membership_payment']}.membership_id AND {$this->_aliases['civicrm_contribution']}.id = {$this->_aliases['civicrm_membership_payment']}.contribution_id";
-
+             ";
       //for premium products
       $this->_from .= "
                LEFT JOIN  civicrm_contribution_product {$this->_aliases['civicrm_contribution_product']} 
@@ -503,7 +506,7 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
                       AND emailhonor.is_primary = 1\n";
     }
   }
-
+  
   function groupBy() {
     $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_contact']}.id, {$this->_aliases['civicrm_contribution']}.id ";
   }
@@ -541,7 +544,12 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
   function postProcess() {
     // get the acl clauses built before we assemble the query
     $this->buildACLClause($this->_aliases['civicrm_contact']);
-    parent::postProcess();
+   //         $this->beginPostProcess( );
+
+        // build query
+     //   $sql = $this->buildQuery( );
+      //  echo $sql;die;
+parent::postProcess();
   }
 
   function alterDisplay(&$rows) {
