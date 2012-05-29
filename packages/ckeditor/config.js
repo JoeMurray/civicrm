@@ -8,19 +8,19 @@ CKEDITOR.editorConfig = function( config )
 	// Define changes to default configuration here. For example:
 	// config.language = 'fr';
 	//config.uiColor = '#AADC6E';
-    
+
     // disable auto spell check
     config.scayt_autoStartup = false;
-    
+
     // This is actually the default value.
     config.toolbar_Full =
     [
         ['Bold','Italic','Underline'],
         ['Font','FontSize'],
-        ['TextColor','BGColor'],   
-        ['Link','Unlink'],
+        ['TextColor','BGColor'],
+        ['Link','Unlink', 'Anchor'],
         ['Image','HorizontalRule','Smiley'],
-        ['NumberedList','BulletedList','Outdent','Indent','Blockquote'],     
+        ['NumberedList','BulletedList','Outdent','Indent','Blockquote'],
         ['PasteText','PasteFromWord','SpellChecker'],
         ['RemoveFormat'],
         ['Undo','Redo'],
