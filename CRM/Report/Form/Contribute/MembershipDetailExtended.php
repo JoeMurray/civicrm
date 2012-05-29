@@ -26,7 +26,7 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 */
-require_once 'CRM/Report/Form.php';
+require_once 'CRM/Report/Form/Extended.php';
 require_once 'CRM/Contribute/PseudoConstant.php';
 require_once 'CRM/Member/PseudoConstant.php';
 /**
@@ -36,7 +36,7 @@ require_once 'CRM/Member/PseudoConstant.php';
  * $Id$
  *
  */
-class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
+class CRM_Report_Form_Contribute_MembershipDetailExtended extends CRM_Report_Form_Extended{
   protected $_addressField = FALSE;
 
   protected $_emailField = FALSE;
@@ -118,13 +118,14 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
         ),
         'grouping' => 'contact-fields',
       ),
-      'civicrm_contact_honor' =>
+      'honor_civicrm_contact' =>
       array('dao' => 'CRM_Contact_DAO_Contact',
+        'alias' => 'honor_civicrm_contact',
+        'name' => 'civicrm_contact',
         'fields' =>
         array('sort_name_honor' =>
           array('title' => ts('Honoree Name'),
             'name' => 'sort_name',
-            'alias' => 'contacthonor',
             'default' => FALSE,
             'no_repeat' => TRUE,
           ),
@@ -132,7 +133,6 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
           array('no_display' => TRUE,
             'title' => ts('Honoree ID'),
             'name' => 'id',
-            'alias' => 'contacthonor',
             'required' => TRUE,
           ),
         ),
@@ -150,11 +150,11 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
         ),
         'grouping' => 'contact-fields',
       ),
-     'civicrm_membership_payment' =>  
+     'civicrm_membership_payment' =>
      array('dao' => 'CRM_Member_DAO_MembershipPayment',
        'fields' =>
        array(
-       'contribution_id' => 
+       'contribution_id' =>
           array(
             'name' => 'contribution_id',
             'no_display' => TRUE,
@@ -185,10 +185,10 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
            'no_repeat' => TRUE
            )
          )
-       ),                      
+       ),
       'civicrm_contribution' =>
       array('dao' => 'CRM_Contribute_DAO_Contribution',
-        'fields' => 
+        'fields' =>
         array(
           'contribution_id' => array(
             'name' => 'id',
@@ -254,7 +254,7 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
       ),
      'civicrm_contribution_product' =>
       array('dao' => 'CRM_Contribute_DAO_ContributionProduct',
-        'fields' => 
+        'fields' =>
         array(
          'product_id' => array(
             'no_display' => TRUE,
@@ -266,7 +266,7 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
       ),
       'civicrm_product' =>
       array('dao' => 'CRM_Contribute_DAO_Product',
-        'fields' => 
+        'fields' =>
         array(
          'product_name' => array(
                 'name' => 'name',
@@ -348,7 +348,7 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
         'alias' => 'mem_status',
         'fields' =>
         array(
-            'membership_status_name' => 
+            'membership_status_name' =>
              array(
                 'name' => 'name',
                 'title' => ts('Membership Status'),
@@ -365,7 +365,12 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
         ),
         'grouping' => 'member-fields',
       ),
-   ) + $this->addAddressFields(FALSE);
+   ) + $this->addAddressFields()
+   + $this->getAddressColumns(array(
+         'prefix' => 'honor_',
+         'prefix_label' => 'Honoree ',
+       )
+     );
 
     $this->_tagFilter = TRUE;
     parent::__construct();
@@ -374,10 +379,10 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
   function preProcess() {
     parent::preProcess();
   }
-  
+
   function select() {
     $select = array();
-        
+
     $this->_columnHeaders = array();
     foreach ($this->_columns as $tableName => $table) {
       if (array_key_exists('fields', $table)) {
@@ -395,7 +400,7 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
               $this->_emailFieldHonor = TRUE;
             }
 
-            if ($tableName == 'civicrm_contact_honor') {
+            if ($tableName == 'honor_civicrm_contact') {
               $this->_nameFieldHonor = TRUE;
             }
 
@@ -448,65 +453,68 @@ class CRM_Report_Form_Contribute_MembershipDetail extends CRM_Report_Form {
  function from() {
 
       $this->_from = "
-        FROM  civicrm_contribution {$this->_aliases['civicrm_contribution']} 
+        FROM  civicrm_contribution {$this->_aliases['civicrm_contribution']}
               INNER JOIN civicrm_contact  {$this->_aliases['civicrm_contact']} {$this->_aclFrom}
-                      ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_contribution']}.contact_id AND {$this->_aliases['civicrm_contribution']}.is_test = 0 
+                      ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_contribution']}.contact_id AND {$this->_aliases['civicrm_contribution']}.is_test = 0
               INNER JOIN civicrm_membership_payment {$this->_aliases['civicrm_membership_payment']}
                       ON {$this->_aliases['civicrm_contribution']}.id = {$this->_aliases['civicrm_membership_payment']}.contribution_id
-                      
-              INNER JOIN civicrm_membership {$this->_aliases['civicrm_membership']} 
+
+              INNER JOIN civicrm_membership {$this->_aliases['civicrm_membership']}
                       ON {$this->_aliases['civicrm_membership_payment']}.membership_id = {$this->_aliases['civicrm_membership']}.id  AND {$this->_aliases['civicrm_membership']}.is_test = 0
               LEFT  JOIN civicrm_membership_status {$this->_aliases['civicrm_membership_status']}
-                          ON {$this->_aliases['civicrm_membership_status']}.id = 
-                             {$this->_aliases['civicrm_membership']}.status_id 
+                          ON {$this->_aliases['civicrm_membership_status']}.id =
+                             {$this->_aliases['civicrm_membership']}.status_id
              ";
       //for premium products
       $this->_from .= "
-               LEFT JOIN  civicrm_contribution_product {$this->_aliases['civicrm_contribution_product']} 
+               LEFT JOIN  civicrm_contribution_product {$this->_aliases['civicrm_contribution_product']}
                       ON ({$this->_aliases['civicrm_contribution_product']}.contribution_id = {$this->_aliases['civicrm_contribution']}.id)
                LEFT JOIN  civicrm_product {$this->_aliases['civicrm_product']} ON ({$this->_aliases['civicrm_product']}.id = {$this->_aliases['civicrm_contribution_product']}.product_id)
 ";
 
     if (!empty($this->_params['ordinality_value'])) {
       $this->_from .= "
-              INNER JOIN (SELECT c.id, IF(COUNT(oc.id) = 0, 0, 1) AS ordinality FROM civicrm_contribution c LEFT JOIN civicrm_contribution oc ON c.contact_id = oc.contact_id AND oc.receive_date < c.receive_date GROUP BY c.id) {$this->_aliases['civicrm_contribution_ordinality']} 
+              INNER JOIN (SELECT c.id, IF(COUNT(oc.id) = 0, 0, 1) AS ordinality FROM civicrm_contribution c LEFT JOIN civicrm_contribution oc ON c.contact_id = oc.contact_id AND oc.receive_date < c.receive_date GROUP BY c.id) {$this->_aliases['civicrm_contribution_ordinality']}
                       ON {$this->_aliases['civicrm_contribution_ordinality']}.id = {$this->_aliases['civicrm_contribution']}.id";
     }
 
     $this->_from .= "
-               LEFT JOIN  civicrm_phone {$this->_aliases['civicrm_phone']} 
-                      ON ({$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_phone']}.contact_id AND 
+               LEFT JOIN  civicrm_phone {$this->_aliases['civicrm_phone']}
+                      ON ({$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_phone']}.contact_id AND
                          {$this->_aliases['civicrm_phone']}.is_primary = 1)";
 
     if ($this->_addressField OR (!empty($this->_params['state_province_id_value']) OR !empty($this->_params['country_id_value']))) {
       $this->_from .= "
-            LEFT JOIN civicrm_address {$this->_aliases['civicrm_address']} 
-                   ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_address']}.contact_id AND 
+            LEFT JOIN civicrm_address {$this->_aliases['civicrm_address']}
+                   ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_address']}.contact_id AND
                       {$this->_aliases['civicrm_address']}.is_primary = 1\n";
     }
 
     if ($this->_emailField) {
-      $this->_from .= " 
-            LEFT JOIN civicrm_email {$this->_aliases['civicrm_email']} 
-                   ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_email']}.contact_id AND 
+      $this->_from .= "
+            LEFT JOIN civicrm_email {$this->_aliases['civicrm_email']}
+                   ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_email']}.contact_id AND
                       {$this->_aliases['civicrm_email']}.is_primary = 1\n";
     }
 
     // include Honor name field
-    if ($this->_nameFieldHonor) {
+
       $this->_from .= "
-            LEFT JOIN civicrm_contact contacthonor 
-                      ON contacthonor.id = {$this->_aliases['civicrm_contribution']}.honor_contact_id";
-    }
+            LEFT JOIN civicrm_contact {$this->_aliases['honor_civicrm_contact']}
+                      ON {$this->_aliases['honor_civicrm_contact']}.id = {$this->_aliases['civicrm_contribution']}.honor_contact_id";
+
     // include Honor email field
     if ($this->_emailFieldHonor) {
       $this->_from .= "
-            LEFT JOIN civicrm_email emailhonor 
+            LEFT JOIN civicrm_email emailhonor
                       ON emailhonor.contact_id = {$this->_aliases['civicrm_contribution']}.honor_contact_id
                       AND emailhonor.is_primary = 1\n";
+
     }
+
+    $this->joinAddressFromContact('honor_');
   }
-  
+
   function groupBy() {
     $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_contact']}.id, {$this->_aliases['civicrm_contribution']}.id ";
   }
@@ -555,14 +563,13 @@ parent::postProcess();
   function alterDisplay(&$rows) {
     // custom code to alter rows
     $checkList          = array();
-   
     $entryFound         = FALSE;
     $contributionTypes  = CRM_Contribute_PseudoConstant::contributionType();
     $contributionStatus = CRM_Contribute_PseudoConstant::contributionStatus();
     $paymentInstruments = CRM_Contribute_PseudoConstant::paymentInstrument();
     $honorTypes         = CRM_Core_OptionGroup::values('honor_type', FALSE, FALSE, FALSE, NULL, 'label');
 
-    //altering the csv display adding additional fields    
+    //altering the csv display adding additional fields
     if( $this->_outputMode == 'csv' ) {
         foreach ($this->_columns as $tableName => $table) {
             if (array_key_exists('fields', $table)) {
@@ -575,24 +582,24 @@ parent::postProcess();
             }
         }
     }
-    
+
     foreach ($rows as $rowNum => $row) {
         if (!empty($this->_noRepeats) && $this->_outputMode != 'csv') {
         $repeatFound = FALSE;
         $display_flag = NULL;
          if (array_key_exists('civicrm_contact_id', $row)) {
-          if ($cid = $row['civicrm_contact_id']) {
+          if ($row['civicrm_contact_id']) {
             if ($rowNum == 0) {
-              $prev_cid = $cid;
+              $prev_cid = $row['civicrm_contact_id'];
             }
             else {
-              if ($prev_cid == $cid) {
+              if ($prev_cid == $row['civicrm_contact_id']) {
                 $display_flag = 1;
-                $prev_cid = $cid;
+                $prev_cid = $row['civicrm_contact_id'];
               }
               else {
                 $display_flag = 0;
-                $prev_cid = $cid;
+                $prev_cid = $row['civicrm_contact_id'];
               }
             }
 
@@ -607,7 +614,7 @@ parent::postProcess();
           }
         }
       }
-      
+
       if (array_key_exists('civicrm_membership_membership_type_id', $row)) {
         if ($value = $row['civicrm_membership_membership_type_id']) {
           $rows[$rowNum]['civicrm_membership_membership_type_id'] = CRM_Member_PseudoConstant::membershipType($value, FALSE);
@@ -693,5 +700,6 @@ parent::postProcess();
       }
       $lastKey = $rowNum;
     }
+    parent:: alterDisplay($rows);
   }
 }
