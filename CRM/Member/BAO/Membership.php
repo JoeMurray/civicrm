@@ -296,12 +296,16 @@ class CRM_Member_BAO_Membership extends CRM_Member_DAO_Membership {
       $recordContribution = array(
         'contact_id', 'total_amount', 'receive_date', 'contribution_type_id',
         'payment_instrument_id', 'trxn_id', 'invoice_id', 'is_test',
+        'honor_contact_id', 'honor_type_id',
         'contribution_status_id', 'check_number', 'campaign_id', 'is_pay_later',
       );
       foreach ($recordContribution as $f) {
         $contributionParams[$f] = CRM_Utils_Array::value($f, $params);
       }
-
+      if(CRM_Utils_Array::value('contribution_contact_id', $params)){
+        // deal with possibility of a different person paying for contribution
+        $contributionParams['contact_id'] = $params['contribution_contact_id'];
+      }
       require_once 'CRM/Contribute/BAO/Contribution.php';
       $contribution = CRM_Contribute_BAO_Contribution::create($contributionParams, $ids);
 
@@ -2208,12 +2212,16 @@ FROM   civicrm_membership_type
    */
   static
   function getContactMembershipCount($contactID, $activeOnly = FALSE) {
-    $query = "SELECT count(*) FROM civicrm_membership WHERE civicrm_membership.contact_id = {$contactID} AND civicrm_membership.is_test = 0 ";
+    $select = "SELECT count(*) FROM civicrm_membership ";
+    $where  = "WHERE civicrm_membership.contact_id = {$contactID} AND civicrm_membership.is_test = 0 ";
 
     // CRM-6627, all status below 3 (active, pending, grace) are considered active
     if ($activeOnly) {
-      $query .= " and status_id <= 3";
+      $select .= " INNER JOIN civicrm_membership_status ON civicrm_membership.status_id = civicrm_membership_status.id ";
+      $where  .= " and civicrm_membership_status.is_active = 1";
     }
+ 
+    $query = $select . $where;
     return CRM_Core_DAO::singleValueQuery($query);
   }
 
