@@ -625,6 +625,7 @@ WHERE   id IN ( '. implode( ' , ', array_keys( $membershipType ) ) .' )';
            $this->addElement('checkbox', 'contribution_contact', ts('Record Payment from a Different Contact?'));
            $this->add( 'select', 'honor_type_id', ts('Membership payment is : '),
                         array( '' => ts( '-') ) + CRM_Core_PseudoConstant::honor() );
+                        require_once 'CRM/Contact/Form/NewContact.php';
            CRM_Contact_Form_NewContact::buildQuickForm($this,1, null, false,'contribution_');
          }
 
