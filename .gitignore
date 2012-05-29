@@ -2,3 +2,5 @@ drupal
 .buildpath
 .project
 .settings
+*.afm.php
+packages/dompdf/lib/fonts/log.htm
