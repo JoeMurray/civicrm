@@ -660,11 +660,19 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
       //add field for amount to allow an amount to be entered that differs from minimum
       $this->add('text', 'total_amount', ts('Amount'));
     }
-    $this->addElement('checkbox',
-      'send_receipt',
-      ts('Send Confirmation and Receipt?'), NULL,
-      array('onclick' => "showHideByValue( 'send_receipt', '', 'notice', 'table-row', 'radio', false); showHideByValue( 'send_receipt', '', 'fromEmail', 'table-row', 'radio', false);")
-    );
+         if ($this->_context != 'standalone') {
+           //CRM-10223 - allow contribution to be recorded against different contact
+           // causes a conflict in standalone mode so skip in standalone for now
+           $this->addElement('checkbox', 'contribution_contact', ts('Record Payment from a Different Contact?'));
+           $this->add( 'select', 'honor_type_id', ts('Membership payment is : '),
+                        array( '' => ts( '-') ) + CRM_Core_PseudoConstant::honor() );
+           CRM_Contact_Form_NewContact::buildQuickForm($this,1, null, false,'contribution_');
+         }
+
+        $this->addElement( 'checkbox',
+                           'send_receipt',
+                           ts('Send Confirmation and Receipt?'), null,
+                           array( 'onclick' => "showHideByValue( 'send_receipt', '', 'notice', 'table-row', 'radio', false); showHideByValue( 'send_receipt', '', 'fromEmail', 'table-row', 'radio', false);" ) );
 
     $this->add('select', 'from_email_address', ts('Receipt From'), $this->_fromEmails);
 
