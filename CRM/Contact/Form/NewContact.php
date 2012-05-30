@@ -70,8 +70,6 @@ class CRM_Contact_Form_NewContact
           'onChange' => "if (this.value) {  newContact{$prefix}{$blockNo}( this.value, {$blockNo}, '{$prefix}' );}",
         ));
     }
-dpm($prefix);
-dpm(debug_backtrace());
     $form->assign('blockNo', $blockNo);
     $form->assign('prefix', $prefix);
   }
