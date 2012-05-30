@@ -186,6 +186,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
 
     public $_action;
 
+    public $_profileAddressFields = array();
     /**
      * Function to set variables up before form is built
      *
@@ -641,7 +642,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
      */
     function buildCustom( $id, $name, $viewOnly = false, $onBehalf = false, $fieldTypes = null )
     {
-        $stateCountryMap = array( );
+    $stateCountryMap = array();
 
         if ( $id ) {
             $session = CRM_Core_Session::singleton( );
@@ -705,7 +706,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                         }
                         $stateCountryMap[$index][$prefixName] = $key;
                     }
-
+          CRM_Core_BAO_UFField::assignAddressField($key, $this->_profileAddressFields);
                     if ( $onBehalf ) {
                         if ( !empty( $fieldTypes ) && in_array( $field['field_type'], $fieldTypes ) ) {
                             CRM_Core_BAO_UFGroup::buildProfile( $this, $field, CRM_Profile_Form::MODE_CREATE,
@@ -724,7 +725,9 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                 }
 
                 $this->assign( $name, $fields );
-
+      if(!empty( $this->_profileAddressFields)){
+          $this->assign('profileAddressFields',$this->_profileAddressFields);
+        }
                 require_once 'CRM/Core/BAO/Address.php';
                 CRM_Core_BAO_Address::addStateCountryMap( $stateCountryMap );
 

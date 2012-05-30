@@ -694,6 +694,7 @@ SELECT  id
 
   static
   function assignAddressField($key, &$profileAddressFields) {
+    require_once 'CRM/Core/BAO/LocationType.php';
     $billing_id = CRM_Core_BAO_LocationType::getBilling();
     list($prefixName, $index) = CRM_Utils_System::explode('-', $key, 2);
     if (!empty($index) && (
