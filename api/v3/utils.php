@@ -190,7 +190,7 @@ function civicrm_api3_create_success( $values = 1,$params=array(), $entity = nul
         $undefined = array_diff ($paramFields, $allFields,array_keys($_COOKIE),array ('action','entity','debug','version','check_permissions','IDS_request_uri','IDS_user_agent','return','sequential','rowCount','option_offset','option_limit','custom', 'option_sort'));
         if ($undefined)
                 $result['undefined_fields'] = array_merge ($undefined);
-        
+
          }
     if(is_object ($dao)){
         $dao->free();
@@ -360,14 +360,14 @@ function _civicrm_api3_dao_set_filter (&$dao,$params, $unique = TRUE ) {
         case 'IS NOT NULL':
             $dao->whereAdd(sprintf('%s %s', $field, $operator));
             break;
-            
+
         // ternary operators
         case 'BETWEEN':
         case 'NOT BETWEEN':
             if (empty($criteria[0]) || empty($criteria[1])) error();
             $dao->whereAdd(sprintf('%s BETWEEN "%s" AND "%s"', $field, DAO::escapeString($criteria[0]), DAO::escapeString($criteria[1])));
             break;
-        
+
         // n-ary operators
         case 'IN':
         case 'NOT IN':
@@ -375,15 +375,15 @@ function _civicrm_api3_dao_set_filter (&$dao,$params, $unique = TRUE ) {
             $escapedCriteria = array_map(array('CRM_Core_DAO','escapeString'), $criteria);
             $dao->whereAdd(sprintf('%s %s ("%s")', $field, $operator, implode('", "', $escapedCriteria)));
             break;
-        
+
         // binary operators
         default:
-            
-            $dao->whereAdd(sprintf('%s %s "%s"', $field, $operator, CRM_Core_DAO::escapeString($criteria))); 
+
+            $dao->whereAdd(sprintf('%s %s "%s"', $field, $operator, CRM_Core_DAO::escapeString($criteria)));
               }
               }
-          
-        } 
+
+        }
       }else{
         $dao->$field = $params [$field];
       }
@@ -529,11 +529,11 @@ function _civicrm_api3_dao_to_array ($dao, $params = null,$uniqueFields = TRUE, 
             }
         }
         $result[$dao->id] = $tmp;
-        if(!empty($custom)){  
+        if(!empty($custom)){
            _civicrm_api3_custom_data_get($result[$dao->id],$entity,$dao->id);
         }
    }
-      
+
 
     return $result;
 }
@@ -823,8 +823,8 @@ function _civicrm_api3_validate_fields($entity, $action, &$params, $errorMode = 
             _civicrm_api3_validate_date($params,$fieldname,$fieldInfo);
             break;
         }
-   if(!empty($errorMode) && strtolower($action) == 'create' 
-      && CRM_Utils_Array::value('FKClassName', $fieldInfo) 
+   if(!empty($errorMode) && strtolower($action) == 'create'
+      && CRM_Utils_Array::value('FKClassName', $fieldInfo)
       && CRM_Utils_Array::value($fieldname, $params)){
             _civicrm_api3_validate_constraint($params,$fieldname,$fieldInfo);
    }
@@ -977,11 +977,11 @@ function _civicrm_api_get_fields($entity, $unique = FALSE, &$params = array()){
     foreach ($fields as $name => &$field) {
       //getting rid of unused attributes
       foreach ($unsetIfEmpty as $attr) {
-        if (empty($field[$attr])) { 
+        if (empty($field[$attr])) {
           unset($field[$attr]);
         }
       }
-      if ($name == $field['name']) 
+      if ($name == $field['name'])
         continue;
       if (array_key_exists ($field['name'],$fields)) {
         $field['error']='name conflict';
@@ -1014,7 +1014,7 @@ function _civicrm_api_get_custom_fields($entity, &$params){
                                                          empty($params['contact_sub_type']),
                                                          false,
                                                          false ) ;
-                                                      
+
     foreach ($customfields as $key => $value) {
         $customfields['custom_' . $key] = $value;
         unset($customfields[$key]);
@@ -1073,7 +1073,7 @@ function _civicrm_api3_swap_out_aliases(&$apiRequest ) {
                           'getfields',
                           array('version' => 3,
                                 'action' => $apiRequest['action']));
-   
+
     foreach ($result['values'] as $field => $values) {
         if (CRM_Utils_Array::value('api.aliases',$values)){
             if (!CRM_Utils_Array::value($field,$apiRequest['params'])){ // aliased field is empty so we try to use field alias

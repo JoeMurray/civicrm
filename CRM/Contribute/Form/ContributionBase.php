@@ -39,12 +39,12 @@ require_once 'CRM/Core/BAO/UFGroup.php';
 require_once 'CRM/Profile/Form.php';
 
 /**
- * This class generates form components for processing a ontribution 
- * 
+ * This class generates form components for processing a ontribution
+ *
  */
 class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
 {
-    
+
     /**
      * the id of the contribution page that we are proceessing
      *
@@ -55,7 +55,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
 
     /**
      * the mode that we are in
-     * 
+     *
      * @var string
      * @protect
      */
@@ -110,12 +110,12 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
      */
     public $_params;
 
-    /** 
+    /**
      * The fields involved in this contribution page
-     * 
-     * @var array 
+     *
+     * @var array
      * @public
-     */ 
+     */
     public $_fields;
 
     /**
@@ -157,7 +157,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
      * @public
      */
     public $_pcpInfo;
-        
+
     protected $_userID;
 
     /**
@@ -167,7 +167,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
      * @public
      */
     public $_membershipId;
-   
+
     /**
      * Price Set ID, if the new price set method is used
      *
@@ -175,7 +175,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
      * @protected
      */
     public $_priceSetId;
-    
+
     /**
      * Array of fields for the price set
      *
@@ -183,21 +183,21 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
      * @protected
      */
     public $_priceSet;
-    
+
     public $_action;
-    
-    /** 
-     * Function to set variables up before form is built 
-     *                                                           
-     * @return void 
-     * @access public 
-     */ 
-    public function preProcess()  
-    {  
+
+    /**
+     * Function to set variables up before form is built
+     *
+     * @return void
+     * @access public
+     */
+    public function preProcess()
+    {
         $config  = CRM_Core_Config::singleton( );
         $session = CRM_Core_Session::singleton( );
 
-        // current contribution page id 
+        // current contribution page id
         $this->_id = CRM_Utils_Request::retrieve( 'id', 'Positive',
                                                   $this );
         if ( ! $this->_id ) {
@@ -219,12 +219,12 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                 require_once 'CRM/Member/DAO/Membership.php';
                 $membership = new CRM_Member_DAO_Membership( );
                 $membership->id = $this->_mid;
-                
+
                 if ( $membership->find(true) ) {
                     $this->_defaultMemTypeId = $membership->membership_type_id;
                     if ( $membership->contact_id != $this->_userID ) {
                         require_once 'CRM/Contact/BAO/Relationship.php';
-                        $employers = 
+                        $employers =
                             CRM_Contact_BAO_Relationship::getPermissionedEmployer( $this->_userID );
                         if ( array_key_exists($membership->contact_id, $employers) ) {
                             $this->_membershipContactID = $membership->contact_id;
@@ -246,11 +246,11 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
         // Contribution page values are cleared from session, so can't use normal Printer Friendly view.
         // Use Browser Print instead.
         $this->assign( 'browserPrint', true  );
-        
+
         // action
         $this->_action = CRM_Utils_Request::retrieve( 'action', 'String',
                                                       $this, false, 'add' );
-        $this->assign( 'action'  , $this->_action   ); 
+        $this->assign( 'action'  , $this->_action   );
 
         // current mode
         $this->_mode = ( $this->_action == 1024 ) ? 'test' : 'live';
@@ -291,13 +291,13 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
             $isMonetary = CRM_Utils_Array::value( 'is_monetary', $this->_values );
             $isPayLater = CRM_Utils_Array::value( 'is_pay_later', $this->_values );
 
-            if ( $isMonetary && 
+            if ( $isMonetary &&
                  ( ! $isPayLater || CRM_Utils_Array::value( 'payment_processor_id', $this->_values ) ) ) {
                 $ppID = CRM_Utils_Array::value( 'payment_processor_id', $this->_values );
                 if ( ! $ppID ) {
                     CRM_Core_Error::fatal( ts( 'A payment processor must be selected for this contribution page (contact the site administrator for assistance).' ) );
                 }
-                
+
                 require_once 'CRM/Core/BAO/PaymentProcessor.php';
                 $this->_paymentProcessor = CRM_Core_BAO_PaymentProcessor::getPayment( $ppID,
                                                                                       $this->_mode );
@@ -314,14 +314,14 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                     CRM_Core_Error::fatal( $error );
                 }
                 $this->_paymentProcessor['processorName'] = $this->_paymentObject->_processorName;
-                $this->set( 'paymentProcessor', $this->_paymentProcessor );                
+                $this->set( 'paymentProcessor', $this->_paymentProcessor );
             }
 
             // get price info
             // CRM-5095
             require_once 'CRM/Price/BAO/Set.php';
             CRM_Price_BAO_Set::initSet( $this, $this->_id, 'civicrm_contribution_page' );
-            
+
             // this avoids getting E_NOTICE errors in php
             $setNullFields = array( 'amount_block_is_active',
                                     'honor_block_is_active' ,
@@ -332,24 +332,24 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                     $this->_values[$f] = null;
                 }
             }
-            
+
             //check if Membership Block is enabled, if Membership Fields are included in profile
             //get membership section for this contribution page
             require_once 'CRM/Member/BAO/Membership.php';
             $this->_membershipBlock = CRM_Member_BAO_Membership::getMembershipBlock( $this->_id );
             $this->set( 'membershipBlock', $this->_membershipBlock );
-            
+
             require_once 'CRM/Core/BAO/UFField.php';
             if ( $this->_values['custom_pre_id'] ) {
                 $preProfileType  = CRM_Core_BAO_UFField::getProfileType( $this->_values['custom_pre_id'] );
             }
-            
+
             if ( $this->_values['custom_post_id'] ) {
                 $postProfileType = CRM_Core_BAO_UFField::getProfileType( $this->_values['custom_post_id'] );
             }
             // also set cancel subscription url
-            if ( CRM_Utils_Array::value( 'is_recur', $this->_paymentProcessor ) && 
-                 CRM_Utils_Array::value( 'is_recur', $this->_values ) ) {    
+            if ( CRM_Utils_Array::value( 'is_recur', $this->_paymentProcessor ) &&
+                 CRM_Utils_Array::value( 'is_recur', $this->_values ) ) {
                 $this->_values['cancelSubscriptionUrl'] = $this->_paymentObject->cancelSubscriptionURL( );
             }
             if ( ( ( isset($postProfileType) && $postProfileType == 'Membership' ) ||
@@ -357,7 +357,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                  ! $this->_membershipBlock['is_active'] ) {
                 CRM_Core_Error::fatal( ts('This page includes a Profile with Membership fields - but the Membership Block is NOT enabled. Please notify the site administrator.') );
             }
-            
+
             require_once 'CRM/Pledge/BAO/PledgeBlock.php';
             $pledgeBlock = CRM_Pledge_BAO_PledgeBlock::getPledgeBlock( $this->_id );
 
@@ -369,13 +369,13 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
 
                 //set pledge id in values
                 $pledgeId = CRM_Utils_Request::retrieve( 'pledgeId', 'Positive', $this );
-                
+
                 //authenticate pledge user for pledge payment.
                 if ( $pledgeId ) {
                     $this->_values['pledge_id'] = $pledgeId;
-                    
+
                     //lets override w/ pledge campaign.
-                    $this->_values['campaign_id'] = CRM_Core_DAO::getFieldValue( 'CRM_Pledge_DAO_Pledge', 
+                    $this->_values['campaign_id'] = CRM_Core_DAO::getFieldValue( 'CRM_Pledge_DAO_Pledge',
                                                                                  $pledgeId,
                                                                                  'campaign_id' );
                     self::authenticatePledgeUser( );
@@ -384,7 +384,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
             $this->set( 'values', $this->_values );
             $this->set( 'fields', $this->_fields );
         }
-        
+
         require_once 'CRM/PCP/BAO/PCP.php';
         // Handle PCP
         $pcpId = CRM_Utils_Request::retrieve( 'pcpId', 'Positive', $this );
@@ -394,7 +394,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
             $this->_pcpBlock = $pcp['pcpBlock'];
             $this->_pcpInfo  = $pcp['pcpInfo'];
         }
-        
+
         // Link (button) for users to create their own Personal Campaign page
         if ( $linkText = CRM_PCP_BAO_PCP::getPcpBlockStatus( $this->_id, 'contribute' ) ) {
             $linkTextUrl = CRM_Utils_System::url( 'civicrm/contribute/campaign',
@@ -403,13 +403,13 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
             $this->assign( 'linkTextUrl', $linkTextUrl );
             $this->assign( 'linkText', $linkText );
         }
-        
+
         //set pledge block if block id is set
         if ( CRM_Utils_Array::value( 'pledge_block_id', $this->_values ) ) {
             $this->assign( 'pledgeBlock', true );
         }
-        
-        // we do this outside of the above conditional to avoid 
+
+        // we do this outside of the above conditional to avoid
         // saving the country/state list in the session (which could be huge)
         if ( ( $this->_paymentProcessor['billing_mode'] & CRM_Core_Payment::BILLING_MODE_FORM ) &&
              CRM_Utils_Array::value('is_monetary', $this->_values) ) {
@@ -420,7 +420,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                 CRM_Core_Payment_Form::setDirectDebitFields( $this );
             } else {
                 CRM_Core_Payment_Form::setCreditCardFields( $this );
-            }         
+            }
         }
 
         $this->assign_by_ref( 'paymentProcessor', $this->_paymentProcessor );
@@ -431,7 +431,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                                           "_qf_ThankYou_display=1&qfKey={$this->controller->_key}" );
             CRM_Utils_System::redirect( $url );
         }
-        
+
         // make sure we have a valid payment class, else abort
         if ( CRM_Utils_Array::value('is_monetary',$this->_values) &&
              ! $this->_paymentProcessor['class_name'] &&
@@ -455,7 +455,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
 
         if ( ! empty( $this->_membershipBlock ) &&
              CRM_Utils_Array::value( 'is_separate_payment', $this->_membershipBlock ) &&
-             ( CRM_Utils_Array::value( 'class_name', $this->_paymentProcessor ) && 
+             ( CRM_Utils_Array::value( 'class_name', $this->_paymentProcessor ) &&
                ! ( CRM_Utils_Array::value( 'billing_mode',  $this->_paymentProcessor ) & CRM_Core_Payment::BILLING_MODE_FORM ) ) ) {
             CRM_Core_Error::fatal( ts( 'This contribution page is configured to support separate contribution and membership payments. This %1 plugin does not currently support multiple simultaneous payments, or the option to "Execute real-time monetary transactions" is disabled. Please contact the site administrator and notify them of this error',
                                        array( 1 => $this->_paymentProcessor['payment_processor_type'] ) ) );
@@ -463,7 +463,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
         }
 
         $this->_contributeMode = $this->get( 'contributeMode' );
-        $this->assign( 'contributeMode', $this->_contributeMode ); 
+        $this->assign( 'contributeMode', $this->_contributeMode );
 
         //assigning is_monetary and is_email_receipt to template
         $this->assign( 'is_monetary', $this->_values['is_monetary'] );
@@ -473,53 +473,53 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
         //assign cancelSubscription URL to templates
         $this->assign( 'cancelSubscriptionUrl',
                        CRM_Utils_Array::value( 'cancelSubscriptionUrl', $this->_values ) );
-        
+
         // assigning title to template in case someone wants to use it, also setting CMS page title
         if ( $this->_pcpId ) {
             $this->assign( 'title', $this->_pcpInfo['title'] );
-            CRM_Utils_System::setTitle( $this->_pcpInfo['title'] );     
+            CRM_Utils_System::setTitle( $this->_pcpInfo['title'] );
         } else {
             $this->assign( 'title', $this->_values['title'] );
-            CRM_Utils_System::setTitle( $this->_values['title'] ); 
+            CRM_Utils_System::setTitle( $this->_values['title'] );
         }
         $this->_defaults = array( );
-        
+
         $this->_amount   = $this->get( 'amount' );
-        
+
         //CRM-6907
         $config = CRM_Core_Config::singleton( );
-        $config->defaultCurrency = CRM_Utils_Array::value( 'currency', 
-                                                           $this->_values, 
+        $config->defaultCurrency = CRM_Utils_Array::value( 'currency',
+                                                           $this->_values,
                                                            $config->defaultCurrency );
-        
-        //lets allow user to override campaign. 
+
+        //lets allow user to override campaign.
         $campID = CRM_Utils_Request::retrieve( 'campID', 'Positive', $this );
         if ( $campID && CRM_Core_DAO::getFieldValue( 'CRM_Campaign_DAO_Campaign', $campID ) ) {
             $this->_values['campaign_id'] = $campID;
         }
-        
+
         //do check for cancel recurring and clean db, CRM-7696
         if ( CRM_Utils_Request::retrieve( 'cancel', 'Boolean', CRM_Core_DAO::$_nullObject ) ) {
             self::cancelRecurring( );
         }
     }
 
-    /** 
+    /**
      * set the default values
-     *                                                           
-     * @return void 
-     * @access public 
-     */ 
+     *
+     * @return void
+     * @access public
+     */
     function setDefaultValues( ) {
         return $this->_defaults;
     }
 
-    /** 
+    /**
      * assign the minimal set of variables to the template
-     *                                                           
-     * @return void 
-     * @access public 
-     */ 
+     *
+     * @return void
+     * @access public
+     */
     function assignToTemplate( ) {
         $name = CRM_Utils_Array::value( 'billing_first_name', $this->_params );
         if ( CRM_Utils_Array::value( 'billing_middle_name', $this->_params ) ) {
@@ -532,25 +532,25 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
 
         $vars = array( 'amount', 'currencyID',
                        'credit_card_type', 'trxn_id', 'amount_level' );
- 
+
         $config = CRM_Core_Config::singleton( );
-        if ( isset($this->_values['is_recur']) && 
+        if ( isset($this->_values['is_recur']) &&
              $this->_paymentProcessor['is_recur'] ) {
             $this->assign( 'is_recur_enabled', 1 );
             $vars = array_merge( $vars, array( 'is_recur', 'frequency_interval', 'frequency_unit',
                                                'installments' ) );
         }
 
-        if ( in_array('CiviPledge', $config->enableComponents ) && 
+        if ( in_array('CiviPledge', $config->enableComponents ) &&
              CRM_Utils_Array::value( 'is_pledge', $this->_params ) == 1 ) {
             $this->assign( 'pledge_enabled', 1 );
 
             $vars = array_merge( $vars, array( 'is_pledge',
-                                               'pledge_frequency_interval', 
+                                               'pledge_frequency_interval',
                                                'pledge_frequency_unit',
                                                'pledge_installments') );
         }
-        
+
         if( isset($this->_params['amount_other']) || isset($this->_params['selectMembership']) ) {
             $this->_params['amount_level'] = '';
         }
@@ -582,13 +582,13 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
 
         require_once 'CRM/Utils/Address.php';
         $this->assign('address', CRM_Utils_Address::format($addressFields));
-        
+
         if ( CRM_Utils_Array::value( 'hidden_onbehalf_profile', $this->_params ) ) {
             $this->assign('onBehalfName',    $this->_params['organization_name']);
             $locTypeId = array_keys( $this->_params['onbehalf_location']['email'] );
             $this->assign('onBehalfEmail',   $this->_params['onbehalf_location']['email'][$locTypeId[0]]['email']);
         }
-        
+
         //fix for CRM-3767
         $assignCCInfo = false;
         if ( $this->_amount > 0.0 ) {
@@ -596,10 +596,10 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
         } else if ( CRM_Utils_array::value( 'selectMembership', $this->_params ) ) {
             $memFee = CRM_Core_DAO::getFieldValue( 'CRM_Member_DAO_MembershipType', $this->_params['selectMembership'], 'minimum_fee' );
             if (  $memFee > 0.0  ) {
-                $assignCCInfo = true; 
+                $assignCCInfo = true;
             }
         }
-        
+
         if ( $this->_contributeMode == 'direct' && $assignCCInfo ) {
             if ( $this->_paymentProcessor['payment_type'] & CRM_Core_Payment::PAYMENT_TYPE_DIRECT_DEBIT ) {
                 $this->assign( 'payment_type', $this->_paymentProcessor['payment_type']);
@@ -615,10 +615,10 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                                CRM_Utils_System::mungeCreditCard( $this->_params['credit_card_number'] ) );
             }
         }
-        
+
         $this->assign( 'email',
                        $this->controller->exportValue( 'Main', "email-{$this->_bltID}" ) );
-        
+
         // also assign the receipt_text
         if ( isset( $this->_values['receipt_text'] ) ) {
             $this->assign( 'receipt_text', $this->_values['receipt_text'] );
@@ -633,20 +633,20 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
         }
     }
 
-    /**  
+    /**
      * Function to add the custom fields
-     *  
-     * @return None  
-     * @access public  
-     */ 
-    function buildCustom( $id, $name, $viewOnly = false, $onBehalf = false, $fieldTypes = null ) 
+     *
+     * @return None
+     * @access public
+     */
+    function buildCustom( $id, $name, $viewOnly = false, $onBehalf = false, $fieldTypes = null )
     {
         $stateCountryMap = array( );
 
         if ( $id ) {
             $session = CRM_Core_Session::singleton( );
             $contactID = $this->_userID;
-            
+
             // we don't allow conflicting fields to be
             // configured via profile - CRM 2100
             $fieldsToIgnore = array( 'receive_date'           => 1,
@@ -679,14 +679,14 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                         unset( $fields[$fieldName] );
                     }
                 }
-                
+
                 if (array_intersect_key($fields, $fieldsToIgnore)) {
                     $fields = array_diff_key( $fields, $fieldsToIgnore );
                     CRM_Core_Session::setStatus( ts('Some of the profile fields cannot be configured for this page.') );
                 }
-                
+
                 $fields = array_diff_assoc( $fields, $this->_fields );
-                                
+
                 require_once 'CRM/Core/BAO/Address.php';
                 CRM_Core_BAO_Address::checkContactSharedAddressFields( $fields, $contactID );
                 $addCaptcha = false;
@@ -705,10 +705,10 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                         }
                         $stateCountryMap[$index][$prefixName] = $key;
                     }
-                
+
                     if ( $onBehalf ) {
                         if ( !empty( $fieldTypes ) && in_array( $field['field_type'], $fieldTypes ) ) {
-                            CRM_Core_BAO_UFGroup::buildProfile( $this, $field, CRM_Profile_Form::MODE_CREATE, 
+                            CRM_Core_BAO_UFGroup::buildProfile( $this, $field, CRM_Profile_Form::MODE_CREATE,
                                                                 $contactID, true );
                             $this->_fields['onbehalf'][$key] = $field;
                         } else {
@@ -722,7 +722,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                         $addCaptcha = true;
                     }
                 }
-                
+
                 $this->assign( $name, $fields );
 
                 require_once 'CRM/Core/BAO/Address.php';
@@ -738,8 +738,8 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
             }
         }
     }
-    
-    function getTemplateFileName() 
+
+    function getTemplateFileName()
     {
         if ( $this->_id ) {
             $templateFile = "CRM/Contribute/Form/Contribution/{$this->_id}/{$this->_name}.tpl";
@@ -757,7 +757,7 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
      * @access public
      * @return None
      */
-    public function authenticatePledgeUser( ) 
+    public function authenticatePledgeUser( )
     {
         //get the userChecksum and contact id
         $userChecksum = CRM_Utils_Request::retrieve( 'cs', 'String', $this );
@@ -768,18 +768,18 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
         $pledgeParams = array( 'id' => $this->_values['pledge_id'] );
         $returnProperties = array('contact_id', 'status_id');
         CRM_Core_DAO::commonRetrieve('CRM_Pledge_DAO_Pledge', $pledgeParams, $pledgeValues, $returnProperties );
-        
+
         //get all status
         require_once 'CRM/Contribute/PseudoConstant.php';
         $allStatus = CRM_Contribute_PseudoConstant::contributionStatus( null, 'name' );
-        $validStatus = array( array_search( 'Pending', $allStatus ), 
+        $validStatus = array( array_search( 'Pending', $allStatus ),
                               array_search( 'In Progress', $allStatus ),
                               array_search( 'Overdue', $allStatus ), );
-        
+
         $validUser = false;
         if ( $this->_userID &&
              $this->_userID == $pledgeValues['contact_id'] ) {
-            //check for authenticated  user. 
+            //check for authenticated  user.
             $validUser = true;
         } else if ( $userChecksum && $pledgeValues['contact_id'] ) {
             //check for anonymous user.
@@ -791,24 +791,24 @@ class CRM_Contribute_Form_ContributionBase extends CRM_Core_Form
                 $validUser = false;
             }
         }
-            
+
         if ( !$validUser ) {
-            CRM_Core_Error::fatal( ts( "Oops. It looks like you have an incorrect or incomplete link (URL). Please make sure you've copied the entire link, and try again. Contact the site administrator if this error persists." ) );    
+            CRM_Core_Error::fatal( ts( "Oops. It looks like you have an incorrect or incomplete link (URL). Please make sure you've copied the entire link, and try again. Contact the site administrator if this error persists." ) );
         }
-        
+
         //check for valid pledge status.
         if ( !in_array( $pledgeValues['status_id'], $validStatus ) ) {
-            CRM_Core_Error::fatal(ts('Oops. You cannot make a payment for this pledge - pledge status is %1.', array(1 => CRM_Utils_Array::value($pledgeValues['status_id'], $allStatus)))); 
+            CRM_Core_Error::fatal(ts('Oops. You cannot make a payment for this pledge - pledge status is %1.', array(1 => CRM_Utils_Array::value($pledgeValues['status_id'], $allStatus))));
         }
     }
-    
+
     /**
      * In case user cancel recurring contribution,
      * When we get the control back from payment gate way
      * lets delete the recurring and related contribution.
      *
      **/
-    public function cancelRecurring( ) 
+    public function cancelRecurring( )
     {
         $isCancel = CRM_Utils_Request::retrieve( 'cancel',  'Boolean',  CRM_Core_DAO::$_nullObject );
         if ( $isCancel ) {
