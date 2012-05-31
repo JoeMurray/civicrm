@@ -267,7 +267,7 @@ class CRM_Core_BAO_UFGroup extends CRM_Core_DAO_UFGroup
                                $skipPermission = false,
                                $ctype = null,
                                $permissionType = CRM_Core_Permission::CREATE,
-                               $orderBy = 'field_name' , $orderProfiles = null )
+                               $orderBy = 'field_name' , $orderProfiles = null, $prefix = '' )
     {
         if ( !is_array( $id ) ) {
             $id = CRM_Utils_Type::escape( $id, 'Positive' );
@@ -400,7 +400,7 @@ class CRM_Core_BAO_UFGroup extends CRM_Core_DAO_UFGroup
 
             while ( $field->fetch( ) ) {
                 $name  = $title = $locType = $phoneType = '';
-                $name  = $field->field_name;
+                $name  = $prefix . $field->field_name;
                 $title = $field->label;
 
                 $addressCustom = false;
@@ -3033,6 +3033,5 @@ SELECT  group_id
         }
         return false;
     }
-
 
 }

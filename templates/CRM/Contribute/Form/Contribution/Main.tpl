@@ -162,48 +162,37 @@ function clearAmountOther() {
     {include file="CRM/Contribute/Form/Contribution/PremiumBlock.tpl" context="makeContribution"}
 
     {if $honor_block_is_active}
-  <fieldset class="crm-group honor_block-group">
-    <legend>{$honor_block_title}</legend>
-        <div class="crm-section honor_block_text-section">
-          {$honor_block_text}
-        </div>
-    {if $form.honor_type_id.html}
-        <div class="crm-section {$form.honor_type_id.name}-section">
-        <div class="content" >
-          {$form.honor_type_id.html}
-          <span class="crm-clear-link">(<a href="#" title="unselect" onclick="unselectRadio('honor_type_id', '{$form.formName}');enableHonorType(); return false;">{ts}clear{/ts}</a>)</span>
-          <div class="description">{ts}Please include the name, and / or email address of the person you are honoring.{/ts}</div>
-        </div>
-        </div>
+      <fieldset class="crm-group honor_block-group">
+        <legend>{$honor_block_title}</legend>
+            <div class="crm-section honor_block_text-section">
+              {$honor_block_text}
+            </div>
+        {if $form.honor_type_id.html}
+            <div class="crm-section {$form.honor_type_id.name}-section">
+            <div class="content" >
+              {$form.honor_type_id.html}
+              <span class="crm-clear-link">(<a href="#" title="unselect" onclick="unselectRadio('honor_type_id', '{$form.formName}');enableHonorType(); return false;">{ts}clear{/ts}</a>)</span>
+              <div class="description">{ts}Please include the name, and / or email address of the person you are honoring.{/ts}</div>
+            </div>
+            </div>
+        {/if}
+        <div id="honorType" class="honoree-name-email-section crm-section honor.name-section"">
+ <div class="label">{$form.honor_prefix_id.label}</div>
+              <div class="content">{$form.honor_prefix_id.html}</div>
+
+
+          <div id="honor_profile" class="crm-section {$form.honor_email.name}-section">
+            <div id="profile-api">{$honor_profile}</div>
+            <div class="label">{$form.honor_email.label}</div>
+              <div class="content">
+                {$form.honor_email.html}
+              </div>
+              <div class="clear"></div>
+            </div>
+          </div>
+      </fieldset>
     {/if}
-    <div id="honorType" class="honoree-name-email-section">
-      <div class="crm-section {$form.honor_prefix_id.name}-section">
-          <div class="content">{$form.honor_prefix_id.html}</div>
-      </div>
-      <div class="crm-section {$form.honor_first_name.name}-section">
-        <div class="label">{$form.honor_first_name.label}</div>
-          <div class="content">
-              {$form.honor_first_name.html}
-        </div>
-        <div class="clear"></div>
-      </div>
-      <div class="crm-section {$form.honor_last_name.name}-section">
-          <div class="label">{$form.honor_last_name.label}</div>
-          <div class="content">
-              {$form.honor_last_name.html}
-        </div>
-        <div class="clear"></div>
-      </div>
-      <div id="honorTypeEmail" class="crm-section {$form.honor_email.name}-section">
-        <div class="label">{$form.honor_email.label}</div>
-          <div class="content">
-            {$form.honor_email.html}
-        </div>
-        <div class="clear"></div>
-      </div>
-    </div>
-  </fieldset>
-    {/if}
+
 
     <div class="crm-group custom_pre_profile-group">
       {include file="CRM/UF/Form/Block.tpl" fields=$customPre}
@@ -377,25 +366,26 @@ function enablePeriod ( ) {
 {/literal} {/if}{literal}
 
 function enableHonorType( ) {
-    var element = document.getElementsByName("honor_type_id");
-    for (var i = 0; i < element.length; i++ ) {
-  var isHonor = false;
-  if ( element[i].checked == true ) {
+  var element = document.getElementsByName("honor_type_id");
+  for (var i = 0; i < element.length; i++ ) {
+    var isHonor = false;
+    if ( element[i].checked == true ) {
       var isHonor = true;
       break;
+    }
   }
-    }
-    if ( isHonor ) {
-  show('honorType', 'block');
-  show('honorTypeEmail', 'block');
-    } else {
-  document.getElementById('honor_first_name').value = '';
-  document.getElementById('honor_last_name').value  = '';
-  document.getElementById('honor_email').value      = '';
-  document.getElementById('honor_prefix_id').value  = '';
-  hide('honorType', 'block');
-  hide('honorTypeEmail', 'block');
-    }
+  if ( isHonor ) {
+    show('honorType', 'block');
+    show('honor_profile', 'block');
+  }
+  else {
+    document.getElementById('honor_first_name').value = '';
+    document.getElementById('honor_last_name').value  = '';
+    document.getElementById('honor_email').value      = '';
+    document.getElementById('honor_prefix_id').value  = '';
+    hide('honorType', 'block');
+    hide('honor_profile', 'block');
+  }
 }
 
 function pcpAnonymous( ) {

@@ -120,6 +120,49 @@ function civicrm_api3_profile_get( $params ) {
 }
 
 /**
+ * get the html for the form for profile creation
+ * @param int     $gid      group id
+ * @param boolean $reset    should we reset the form?
+ *
+ * @return string       the html for the form
+ * @static
+ * @access public
+ */
+function civicrm_api3_profile_gethtml($params)
+{
+    require_once 'CRM/Core/Controller/Simple.php';
+    $session = CRM_Core_Session::singleton( );
+    $controller = new CRM_Core_Controller_Simple( 'CRM_Profile_Form_Edit', '', CRM_Core_Action::ADD );
+    if ( CRM_Utils_Array::value('reset', $params ) ){
+      // am unclear where this would be relevant but keeping it from v2 for now
+        unset( $_POST['_qf_default'] );
+        unset( $_REQUEST['_qf_default'] );
+    }
+    $controller->set( 'gid', $params['id'] );
+    $controller->set( 'skipPermission', $params['skip_permission'] );
+    $controller->set('prefix', CRM_Utils_Array::value('prefix', $params,''));
+    $controller->set('noButtons', $params['no_buttons']);
+    $controller->process( );
+    $controller->setEmbedded( true );
+    $controller->run( );
+    $template = CRM_Core_Smarty::singleton( );
+    $values = array();
+    $values[]['html'] = trim( $template->fetch( 'CRM/Profile/Form/Dynamic.tpl' ) );
+    return civicrm_api3_create_success($values,$params,'profile','gethtml');
+}
+
+function civicrm_api3_profile_gethtml_spec(&$params){
+  $params['id']['api_required'] =1;
+  $params['skip_permission']['api_default'] =1;
+  $params['prefix'] = array('title' => ts('Prefix to add to field'));
+  $params['no_buttons'] = array(
+    'title' => ts('Do you want save & cancel buttons excluded'),
+    'api_default' => 1,
+  );
+
+}
+
+/**
  * Update Profile field values.
  *
  * @param array  $params       Associative array of property name/value
@@ -307,14 +350,3 @@ function civicrm_api3_profile_apply( $params ) {
 
 }
 
-/*
- * Return UFGroup fields
- */
-function civicrm_api3_profile_getfields( $params ) {
-    $dao = _civicrm_api3_get_DAO('UFGroup');
-    $file = str_replace ('_','/',$dao).".php";
-    require_once ($file);
-    $d = new $dao();
-    $fields = $d->fields();
-    return civicrm_api3_create_success($fields);
-}
