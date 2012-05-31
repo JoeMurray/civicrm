@@ -27,7 +27,7 @@
 */
 
 /**
- * This class acts as our base controller class and adds additional 
+ * This class acts as our base controller class and adds additional
  * functionality and smarts to the base QFC. Specifically we create
  * our own action classes and handle the transitions ourselves by
  * simulating a state machine. We also create direct jump links to any
@@ -57,7 +57,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
      * @var string
      */
     protected $_title;
-    
+
     /**
      * The key associated with this controller
      *
@@ -87,7 +87,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
      * @var boolean
      */
     protected $_embedded = false;
-    
+
     /**
      * After entire form execution complete,
      * do we want to skip control redirection.
@@ -99,7 +99,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
      * @var boolean
      */
     protected $_skipRedirection = false;
-    
+
     /**
      * Are we in print mode? if so we need to modify the display
      * functionality to do a minimal display :)
@@ -137,7 +137,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
     public $_destination = null;
 
     /**
-     * All CRM single or multi page pages should inherit from this class. 
+     * All CRM single or multi page pages should inherit from this class.
      *
      * @param string  title        descriptive title of the controller
      * @param boolean whether      controller is modal
@@ -146,14 +146,14 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
      * @param boolean ignoreKey    should we not set a qfKey for this controller (for standalone forms)
      *
      * @access public
-     *   
+     *
      * @return void
      *
      */
     function __construct( $title = null, $modal = true,
                           $mode = null, $scope = null,
                           $addSequence = false, $ignoreKey = false ) {
-        // this has to true for multiple tab session fix                    
+        // this has to true for multiple tab session fix
         $addSequence = true;
 
         // add a unique validable key to the name
@@ -174,7 +174,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
             CRM_Core_Session::registerAndRetrieveSessionObjects( array( "_{$name}_container",
                                                                         array( 'CiviCRM', $this->_scope ) ) );
         }
-        
+
         $this->HTML_QuickForm_Controller( $name, $modal );
 
         // let the constructor initialize this, should happen only once
@@ -184,7 +184,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
         }
 
         $snippet = CRM_Utils_Array::value( 'snippet', $_REQUEST );
-        //$snippet = CRM_Utils_Request::retrieve( 'snippet', 'Integer', $this, false, null, $_REQUEST );        
+        //$snippet = CRM_Utils_Request::retrieve( 'snippet', 'Integer', $this, false, null, $_REQUEST );
         if ( $snippet ) {
             if ( $snippet == 3 ) {
                 $this->_print = CRM_Core_Smarty::PRINT_PDF;
@@ -332,7 +332,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
             $action =& new $classPath( $this->_stateMachine );
             $this->addAction( $name, $action );
         }
-        
+
         $this->addUploadAction( $uploadDirectory, $uploadNames );
     }
 
@@ -383,7 +383,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
             } else {
                 $formName = CRM_Utils_String::getClassName( $name );
             }
-            
+
             require_once 'CRM/Core/Extensions.php';
             $ext = new CRM_Core_Extensions( );
             if ( $ext->isExtensionClass( $className) ) {
@@ -400,7 +400,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
             }
             $this->addPage( $$stateName );
             $this->addAction( $stateName, new HTML_QuickForm_Action_Direct( ) );
-            
+
             //CRM-6342 -we need kill the reference here,
             //as we have deprecated reference object creation.
             unset( $$stateName );
@@ -506,7 +506,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
 
         $wizard['stepCount']         = $count;
 
-        $this->addWizardStyle( $wizard ); 
+        $this->addWizardStyle( $wizard );
 
         $this->assign( 'wizard', $wizard );
         return $wizard;
@@ -541,7 +541,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
     }
 
     /**
-     * setter for embedded 
+     * setter for embedded
      *
      * @param boolean $embedded
      *
@@ -553,7 +553,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
     }
 
     /**
-     * getter for embedded 
+     * getter for embedded
      *
      * @return boolean return the embedded value
      * @access public
@@ -561,7 +561,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
     function getEmbedded( ) {
         return $this->_embedded;
     }
-    
+
     /**
      * setter for skipRedirection
      *
@@ -573,7 +573,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
     function setSkipRedirection( $skipRedirection ) {
         $this->_skipRedirection = $skipRedirection;
     }
-    
+
     /**
      * getter for skipRedirection
      *
@@ -583,33 +583,33 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
     function getSkipRedirection( ) {
         return $this->_skipRedirection;
     }
-    
+
 
     function setWord ($fileName=null) {
         //Mark as a CSV file.
         header('Content-Type: application/vnd.ms-word');
-        
+
         //Force a download and name the file using the current timestamp.
         if (!$fileName) {
             $fileName = 'Contacts_' . $_SERVER['REQUEST_TIME'] . '.doc';
         }
         header("Content-Disposition: attachment; filename=Contacts_$fileName");
     }
-    
+
     function setExcel ($fileName=null) {
         //Mark as an excel file.
         header('Content-Type: application/vnd.ms-excel');
-        
+
         //Force a download and name the file using the current timestamp.
         if (! $fileName) {
             $fileName = 'Contacts_' . $_SERVER['REQUEST_TIME'] . '.xls';
         }
-        
+
         header("Content-Disposition: attachment; filename=Contacts_$fileName");
     }
-    
+
     /**
-     * setter for print 
+     * setter for print
      *
      * @param boolean $print
      *
@@ -626,7 +626,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
     }
 
     /**
-     * getter for print 
+     * getter for print
      *
      * @return boolean return the print value
      * @access public
@@ -695,7 +695,7 @@ class CRM_Core_Controller extends HTML_QuickForm_Controller {
                 $url = $config->userFrameworkBaseURL;
             }
         }
-        
+
         $this->_destination = $url;
         $this->set( 'civicrmDestination', $this->_destination );
     }
