@@ -147,6 +147,16 @@ class CRM_Profile_Form extends CRM_Core_Form {
    */
   protected $_activityId = NULL;
 
+     /*
+     * String to preced profile fields
+     */
+    protected $_prefix = '';
+
+    /*
+     * Assign no buttons to the tpl so they can be supressed
+     */
+    protected $_noButtons = false;
+
   /**
    * pre processing work done here.
    *
@@ -166,7 +176,8 @@ class CRM_Profile_Form extends CRM_Core_Form {
     $this->_profileIds = $this->get('profileIds');
     $this->_grid       = CRM_Utils_Request::retrieve('grid', 'Integer', $this);
     $this->_context    = CRM_Utils_Request::retrieve('context', 'String', $this);
-
+        $this->_prefix  = $this->get('prefix');
+        $this->_noButtons = $this->get('noButtons');
     $this->_duplicateButtonName = $this->getButtonName('upload', 'duplicate');
 
     $gids = explode(',', CRM_Utils_Request::retrieve('gid', 'String', CRM_Core_DAO::$_nullObject, FALSE, 0, 'GET'));
@@ -459,7 +470,7 @@ class CRM_Profile_Form extends CRM_Core_Form {
     $this->assign('action', $this->_action);
     $this->assign_by_ref('fields', $this->_fields);
     $this->assign('fieldset', (isset($this->_fieldset)) ? $this->_fieldset : "");
-
+        $this->assign('noButtons',$this->_noButtons);
     // do we need inactive options ?
     if ($this->_action & CRM_Core_Action::VIEW) {
       $inactiveNeeded = TRUE;

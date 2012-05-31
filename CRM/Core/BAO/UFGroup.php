@@ -408,7 +408,7 @@ class CRM_Core_BAO_UFGroup extends CRM_Core_DAO_UFGroup {
 
       while ($field->fetch()) {
         $name  = $title = $locType = $phoneType = '';
-        $name  = $field->field_name;
+                $name  = $prefix . $field->field_name;
         $title = $field->label;
 
         $addressCustom = FALSE;
