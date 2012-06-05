@@ -1319,8 +1319,11 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
      * @access public
      */
     function createHonorContact(  ) {
-        $params = $this->controller->exportValues( 'Main' );
-
+        $params = $this->controller->exportValues();
+        // could perhaps move this to a separate function to get the
+        // prefixed values e.g. CRM_xx_xx::getStandaloneProfileParams($params,$prefix)
+        // but not on the form layer
+        $honorParams = CRM_Utils_Array::value('honor_', $params, array());
         if ( // email is enough to create a contact
           !CRM_Utils_Array::value( 'honor_email', $params ) &&
            // or we need first name AND last name
@@ -1345,10 +1348,13 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
         $this->assign('honor_first_name', CRM_Utils_Array::value( 'honor_first_name', $params ));
         $this->assign('honor_last_name',  CRM_Utils_Array::value( 'honor_last_name', $params ));
         $this->assign('honor_email',      CRM_Utils_Array::value( 'honor_email', $params ));
+        foreach ($honorParams as $honorfield => $honorValue){
+          $this->assign('honor_' . $honorfield, $honorValue);
+        }
 
         //create honoree contact
         require_once 'CRM/Contribute/BAO/Contribution.php';
-        return CRM_Contribute_BAO_Contribution::createHonorContact( $params );
+        return CRM_Contribute_BAO_Contribution::createHonorContact( $params, null , $honorParams );
     }
 
     /**
