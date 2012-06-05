@@ -23,6 +23,7 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
+
 {if $onbehalf}
    {include file=CRM/Contribute/Form/Contribution/OnBehalfOf.tpl}
 {else}
@@ -177,16 +178,15 @@ function clearAmountOther() {
             </div>
         {/if}
         <div id="honorType" class="honoree-name-email-section crm-section honor.name-section"">
- <div class="label">{$form.honor_prefix_id.label}</div>
-              <div class="content">{$form.honor_prefix_id.html}</div>
-
-
           <div id="honor_profile" class="crm-section {$form.honor_email.name}-section">
-            <div id="profile-api">{$honor_profile}</div>
+            {include file=CRM/Profile/Form/ProfileContact.tpl
+                                      prefix='honor_'  fields=$form.honor_
+                                     }
+          </div>
             <div class="label">{$form.honor_email.label}</div>
               <div class="content">
                 {$form.honor_email.html}
-              </div>
+
               <div class="clear"></div>
             </div>
           </div>
@@ -376,15 +376,15 @@ function enableHonorType( ) {
   }
   if ( isHonor ) {
     show('honorType', 'block');
-    show('honor_profile', 'block');
+    show('for_honor_', 'block');
   }
   else {
-    document.getElementById('honor_first_name').value = '';
-    document.getElementById('honor_last_name').value  = '';
-    document.getElementById('honor_email').value      = '';
-    document.getElementById('honor_prefix_id').value  = '';
+  cj('#honor_-profile input').each(function(i,v) {
+    cj(v).val('');
+  });
     hide('honorType', 'block');
-    hide('honor_profile', 'block');
+    hide('for_honor_', 'block');
+
   }
 }
 

@@ -834,17 +834,20 @@ GROUP BY p.id
    *
    * @param array $params  associated array of fields (by reference)
    * @param int   $honorId honor Id
-   *
+     * @param array $honorParams any params that should be send to the create function
    * @return contact id
    */
-  function createHonorContact(&$params, $honorId = NULL) {
-    $honorParams = array(
-      'first_name' => $params['honor_first_name'],
-      'last_name' => $params['honor_last_name'],
-      'prefix_id' => $params['honor_prefix_id'],
-      'email-Primary' => $params['honor_email'],
-    );
-    if (!$honorId) {
+    function createHonorContact( &$params, $honorId = null, $honorParams = array() )
+    {
+        $honorParams = array_merge(
+          array( 'first_name'    => $params['honor_first_name'],
+          'last_name'     => $params['honor_last_name'],
+          'prefix_id'     => $params['honor_prefix_id'],
+          'email-Primary' => $params['honor_email']
+          ),
+          $honorParams
+        );
+        if ( !$honorId ) {
       require_once 'CRM/Core/BAO/UFGroup.php';
       $honorParams['email'] = $params['honor_email'];
 
