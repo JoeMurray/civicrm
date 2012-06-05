@@ -63,7 +63,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
     {
         parent::__construct();
     }
-    
+
 
     /**
      * takes an associative array and creates a contribution object
@@ -79,16 +79,16 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
      * @access public
      * @static
      */
-    static function add(&$params, &$ids) 
+    static function add(&$params, &$ids)
     {
         if ( empty($params) ) {
             return;
-        } 
+        }
 
         $duplicates = array( );
         if ( self::checkDuplicate( $params, $duplicates,
                                    CRM_Utils_Array::value( 'contribution', $ids ) ) ) {
-            $error = CRM_Core_Error::singleton( ); 
+            $error = CRM_Core_Error::singleton( );
             $d = implode( ', ', $duplicates );
             $error->push( CRM_Core_Error::DUPLICATE_CONTRIBUTION,
                           'Fatal',
@@ -106,33 +106,33 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
         if ( CRM_UTils_Array::value('skipCleanMoney', $params) ) {
             unset($moneyFields[0]);
         }
-        
+
         foreach ( $moneyFields as $field ) {
             if ( isset( $params[$field] ) ) {
                 $params[$field] = CRM_Utils_Rule::cleanMoney( $params[$field] );
             }
         }
-        
+
         if ( CRM_Utils_Array::value( 'payment_instrument_id', $params ) ) {
             require_once 'CRM/Contribute/PseudoConstant.php';
-            $paymentInstruments = CRM_Contribute_PseudoConstant::paymentInstrument( 'name' ); 
+            $paymentInstruments = CRM_Contribute_PseudoConstant::paymentInstrument( 'name' );
             if ( $params['payment_instrument_id'] != array_search( 'Check', $paymentInstruments ) ) {
                 $params['check_number'] = 'null';
             }
         }
-        
+
         require_once 'CRM/Utils/Hook.php';
         if ( CRM_Utils_Array::value( 'contribution', $ids ) ) {
             CRM_Utils_Hook::pre( 'edit', 'Contribution', $ids['contribution'], $params );
         } else {
-            CRM_Utils_Hook::pre( 'create', 'Contribution', null, $params ); 
+            CRM_Utils_Hook::pre( 'create', 'Contribution', null, $params );
         }
 
         $contribution = new CRM_Contribute_BAO_Contribution();
         $contribution->copyValues($params);
-        
+
         $contribution->id        = CRM_Utils_Array::value( 'contribution', $ids );
-        
+
         require_once 'CRM/Utils/Rule.php';
         if (!CRM_Utils_Rule::currencyCode($contribution->currency)) {
             require_once 'CRM/Core/Config.php';
@@ -148,7 +148,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
 
         // Add soft_contribution details as part of fix for CRM-8908
         $contribution->soft_credit_to  = CRM_Utils_Array::value('soft_credit_to',  $params );
-        
+
         // reset the group contact cache for this group
         require_once 'CRM/Contact/BAO/GroupContactCache.php';
         CRM_Contact_BAO_GroupContactCache::remove( );
@@ -174,7 +174,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
      * @access public
      * @static
      */
-    static function &getValues( &$params, &$values, &$ids ) 
+    static function &getValues( &$params, &$values, &$ids )
     {
         if ( empty ( $params ) ) {
             return null;
@@ -199,11 +199,11 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
      * @param array $params (reference ) an assoc array of name/value pairs
      * @param array $ids    the array that holds all the db ids
      *
-     * @return object CRM_Contribute_BAO_Contribution object 
+     * @return object CRM_Contribute_BAO_Contribution object
      * @access public
      * @static
      */
-    static function &create(&$params, &$ids) 
+    static function &create(&$params, &$ids)
     {
         require_once 'CRM/Utils/Money.php';
         require_once 'CRM/Utils/Date.php';
@@ -217,7 +217,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
             }
         }
 
-        if ( CRM_Utils_Array::value( 'contribution', $ids ) && 
+        if ( CRM_Utils_Array::value( 'contribution', $ids ) &&
              !CRM_Utils_Array::value( 'softID', $params ) ) {
             if ( $softID = CRM_Core_DAO::getFieldValue( 'CRM_Contribute_DAO_ContributionSoft', $ids['contribution'], 'id', 'contribution_id') ) {
                 $params['softID'] = $softID;
@@ -226,7 +226,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
         require_once 'CRM/Core/Transaction.php';
         $transaction = new CRM_Core_Transaction( );
         // delete the soft credit record if no soft credit contact ID AND no PCP is set in the form
-        if ( CRM_Utils_Array::value( 'contribution', $ids ) && 
+        if ( CRM_Utils_Array::value( 'contribution', $ids ) &&
              ( !CRM_Utils_Array::value( 'soft_credit_to', $params ) &&
              !CRM_Utils_Array::value( 'pcp_made_through_id', $params ) ) &&
              CRM_Utils_Array::value( 'softID', $params ) ) {
@@ -235,7 +235,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
             $softCredit->delete( );
         }
         // delete the soft credit record if no soft credit contact ID AND no PCP is set in the form
-        if ( CRM_Utils_Array::value( 'contribution', $ids ) && 
+        if ( CRM_Utils_Array::value( 'contribution', $ids ) &&
              ( !CRM_Utils_Array::value( 'soft_credit_to', $params ) &&
              !CRM_Utils_Array::value( 'pcp_made_through_id', $params ) ) &&
              CRM_Utils_Array::value( 'softID', $params ) ) {
@@ -262,7 +262,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
 
         if ( CRM_Utils_Array::value('note', $params) ) {
             require_once 'CRM/Core/BAO/Note.php';
-           
+
             $noteParams = array(
                                 'entity_table'  => 'civicrm_contribution',
                                 'note'          => $params['note'],
@@ -272,8 +272,8 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
                                 );
             if( ! $noteParams['contact_id'] ) {
                 $noteParams['contact_id'] =  $params['contact_id'];
-            } 
-            
+            }
+
             CRM_Core_BAO_Note::add( $noteParams,
                                     CRM_Utils_Array::value( 'note', $ids ) );
         }
@@ -313,7 +313,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
                                                                         $csParams['pcp_id'], 'contact_id' );
             } else {
                 $csParams['contact_id'] = $params['soft_credit_to'];
-                $csParams['pcp_id'] = '';                
+                $csParams['pcp_id'] = '';
             }
 
             // first stage: we register whole amount as credited to given person
@@ -323,28 +323,28 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
         }
 
         $transaction->commit( );
-        
+
         // do not add to recent items for import, CRM-4399
         if ( !CRM_Utils_Array::value( 'skipRecentView', $params ) ) {
             require_once 'CRM/Utils/Recent.php';
             require_once 'CRM/Contribute/PseudoConstant.php';
             require_once 'CRM/Contact/BAO/Contact.php';
-            $url = CRM_Utils_System::url( 'civicrm/contact/view/contribution', 
+            $url = CRM_Utils_System::url( 'civicrm/contact/view/contribution',
                                           "action=view&reset=1&id={$contribution->id}&cid={$contribution->contact_id}&context=home" );
-            
+
             $contributionTypes = CRM_Contribute_PseudoConstant::contributionType();
-            $title = CRM_Contact_BAO_Contact::displayName( $contribution->contact_id ) . 
-                ' - (' . CRM_Utils_Money::format( $contribution->total_amount, $contribution->currency ) . ' ' . 
+            $title = CRM_Contact_BAO_Contact::displayName( $contribution->contact_id ) .
+                ' - (' . CRM_Utils_Money::format( $contribution->total_amount, $contribution->currency ) . ' ' .
                 ' - ' . $contributionTypes[$contribution->contribution_type_id] . ')';
-            
+
             $recentOther = array( );
             if ( CRM_Core_Permission::checkActionPermission('CiviContribute', CRM_Core_Action::UPDATE) ) {
-                $recentOther['editUrl'] = CRM_Utils_System::url( 'civicrm/contact/view/contribution', 
+                $recentOther['editUrl'] = CRM_Utils_System::url( 'civicrm/contact/view/contribution',
                                                                  "action=update&reset=1&id={$contribution->id}&cid={$contribution->contact_id}&context=home" );
             }
-            
+
             if ( CRM_Core_Permission::checkActionPermission('CiviContribute', CRM_Core_Action::DELETE) ) {
-                $recentOther['deleteUrl'] = CRM_Utils_System::url( 'civicrm/contact/view/contribution', 
+                $recentOther['deleteUrl'] = CRM_Utils_System::url( 'civicrm/contact/view/contribution',
                                                                    "action=delete&reset=1&id={$contribution->id}&cid={$contribution->contact_id}&context=home" );
             }
 
@@ -358,7 +358,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
                                    $recentOther
                                    );
         }
-        
+
         return $contribution;
     }
 
@@ -401,7 +401,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
         }
 
         $look = $reverse ? array_flip($lookup) : $lookup;
-        
+
         if(is_array($look)) {
             if (!array_key_exists($defaults[$src], $look)) {
                 return false;
@@ -426,7 +426,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
      * @access public
      * @static
      */
-    static function retrieve( &$params, &$defaults, &$ids ) 
+    static function retrieve( &$params, &$defaults, &$ids )
     {
         $contribution = CRM_Contribute_BAO_Contribution::getValues( $params, $defaults, $ids );
         return $contribution;
@@ -442,7 +442,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
      * @return array array of importable Fields
      * @access public
      */
-    function &importableFields( $contacType = 'Individual', $status = true ) 
+    function &importableFields( $contacType = 'Individual', $status = true )
     {
         if ( ! self::$_importableFields ) {
             if ( ! self::$_importableFields ) {
@@ -463,7 +463,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
             $optionFields = CRM_Core_OptionValue::getFields($mode ='contribute' );
             require_once 'CRM/Contact/BAO/Contact.php';
             $contactFields = CRM_Contact_BAO_Contact::importableFields( $contacType, null );
-            
+
             // Using new Dedupe rule.
             $ruleParams = array(
                                 'contact_type' => $contacType,
@@ -509,7 +509,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
         return self::$_importableFields;
     }
 
-    function &exportableFields( ) 
+    function &exportableFields( )
     {
         if ( ! self::$_exportableFields ) {
             if ( ! self::$_exportableFields ) {
@@ -519,7 +519,7 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
             require_once 'CRM/Contribute/DAO/Product.php';
             require_once 'CRM/Contribute/DAO/ContributionProduct.php';
             require_once 'CRM/Contribute/DAO/ContributionType.php';
-            
+
             $impFields          = CRM_Contribute_DAO_Contribution::export( );
             $expFieldProduct    = CRM_Contribute_DAO_Product::export( );
             $expFieldsContrib   = CRM_Contribute_DAO_ContributionProduct::export( );
@@ -528,30 +528,30 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
             $contributionStatus = array( 'contribution_status' => array( 'title'     => 'Contribution Status',
                                                                          'name'      => 'contribution_status',
                                                                          'data_type' => CRM_Utils_Type::T_STRING ) );
-            
+
             $contributionNote   = array( 'contribution_note' => array( 'title'     => ts('Contribution Note'),
                                                                        'name'      => 'contribution_note',
                                                                        'data_type' => CRM_Utils_Type::T_TEXT ) );
-            
+
             $contributionRecurId = array( 'contribution_recur_id' => array ( 'title' => ts('Recurring Contributions ID'),
                                                                              'name'  => 'contribution_recur_id',
                                                                              'where' => 'civicrm_contribution.contribution_recur_id',
                                                                              'data_type' => CRM_Utils_Type::T_INT ) );
-            
+
             $campaign = array( 'contribution_campaign' => array( 'title' => ts( 'Campaign Title' ) ) );
-            
+
             $fields = array_merge( $impFields, $typeField, $contributionStatus, $optionField, $expFieldProduct,
-                                   $expFieldsContrib, $contributionNote, $contributionRecurId, $campaign, 
+                                   $expFieldsContrib, $contributionNote, $contributionRecurId, $campaign,
                                    CRM_Core_BAO_CustomField::getFieldsForImport('Contribution') );
-            
+
             self::$_exportableFields = $fields;
         }
         return self::$_exportableFields;
     }
 
-    function getTotalAmountAndCount( $status = null, $startDate = null, $endDate = null ) 
+    function getTotalAmountAndCount( $status = null, $startDate = null, $endDate = null )
     {
-        
+
         $where = array( );
         switch ( $status ) {
         case 'Valid':
@@ -573,12 +573,12 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution
         $whereCond = implode( ' AND ', $where );
 
         $query = "
-    SELECT  sum( total_amount ) as total_amount, 
-            count( civicrm_contribution.id ) as total_count, 
+    SELECT  sum( total_amount ) as total_amount,
+            count( civicrm_contribution.id ) as total_count,
             currency
       FROM  civicrm_contribution
-INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.contact_id ) 
-     WHERE  $whereCond 
+INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.contact_id )
+     WHERE  $whereCond
        AND  ( is_test = 0 OR is_test IS NULL )
        AND  contact.is_deleted = 0
   GROUP BY  currency
@@ -599,21 +599,21 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
         return null;
     }
 
-    /**                                                           
+    /**
      * Delete the indirect records associated with this contribution first
-     * 
+     *
      * @return $results no of deleted Contribution on success, false otherwise
-     * @access public 
-     * @static 
-     */ 
-    static function deleteContribution( $id ) 
+     * @access public
+     * @static
+     */
+    static function deleteContribution( $id )
     {
         require_once 'CRM/Utils/Hook.php';
         CRM_Utils_Hook::pre( 'delete', 'Contribution', $id, CRM_Core_DAO::$_nullArray );
 
         require_once 'CRM/Core/Transaction.php';
         $transaction = new CRM_Core_Transaction( );
-        
+
         $results = null;
         //delete activity record
         require_once 'CRM/Activity/BAO/Activity.php';
@@ -621,14 +621,14 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
                          'activity_type_id' => 6 );// activity type id for contribution
 
         CRM_Activity_BAO_Activity::deleteActivity( $params );
-        
+
         //delete billing address if exists for this contribution.
-        self::deleteAddress( $id ); 
-        
+        self::deleteAddress( $id );
+
         //update pledge and pledge payment, CRM-3961
         require_once 'CRM/Pledge/BAO/PledgePayment.php';
         CRM_Pledge_BAO_PledgePayment::resetPledgePayment( $id );
-        
+
         // remove entry from civicrm_price_set_entity, CRM-5095
         require_once 'CRM/Price/BAO/Set.php';
         if ( CRM_Price_BAO_Set::getFor( 'civicrm_contribution', $id ) ) {
@@ -642,15 +642,15 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
         // delete any related entity_financial_trxn and financial_trxn records.
         require_once 'CRM/Core/BAO/FinancialTrxn.php';
         CRM_Core_BAO_FinancialTrxn::deleteFinancialTrxn($id, 'civicrm_contribution');
-        
-        if ( $participantId ) { 
+
+        if ( $participantId ) {
             require_once 'CRM/Price/BAO/LineItem.php';
             CRM_Price_BAO_LineItem::deleteLineItems( $participantId, 'civicrm_participant' );
         } else {
             require_once 'CRM/Price/BAO/LineItem.php';
             CRM_Price_BAO_LineItem::deleteLineItems( $id, 'civicrm_contribution' );
         }
-        
+
         //delete note.
         require_once 'CRM/Core/BAO/Note.php';
         $note = CRM_Core_BAO_Note::getNote( $id, 'civicrm_contribution' );
@@ -658,16 +658,16 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
         if ( $noteId ) {
             CRM_Core_BAO_Note::del( $noteId, false );
         }
-        
+
         $dao     = new CRM_Contribute_DAO_Contribution( );
         $dao->id = $id;
-             
+
         $results = $dao->delete( );
-        
+
         $transaction->commit( );
 
         CRM_Utils_Hook::post( 'delete', 'Contribution', $dao->id, $dao );
- 
+
         // delete the recently created Contribution
         require_once 'CRM/Utils/Recent.php';
         $contributionRecent = array(
@@ -675,10 +675,10 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
                                     'type' => 'Contribution'
                                     );
         CRM_Utils_Recent::del( $contributionRecent );
-        
+
         return $results;
     }
-    
+
     /**
      * Check if there is a contribution with the same trxn_id or invoice_id
      *
@@ -689,7 +689,7 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
      * @access public
      * static
      */
-    static function checkDuplicate( $input, &$duplicates, $id = null ) 
+    static function checkDuplicate( $input, &$duplicates, $id = null )
     {
         if ( ! $id ) {
             $id         = CRM_Utils_Array::value( 'id'        , $input );
@@ -719,7 +719,7 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
             $clause   = "( $clause ) AND id != %3";
             $input[3] = array( $id, 'Integer' );
         }
-        
+
         $query = "SELECT id FROM civicrm_contribution WHERE $clause";
         $dao = CRM_Core_DAO::executeQuery( $query, $input );
         $result = false;
@@ -729,7 +729,7 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
         }
         return $result;
     }
-    
+
     /**
      * takes an associative array and creates a contribution_product object
      *
@@ -743,7 +743,7 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
      * @access public
      * @static
      */
-    static function addPremium ( &$params ) 
+    static function addPremium ( &$params )
     {
 
         require_once 'CRM/Contribute/DAO/ContributionProduct.php';
@@ -761,14 +761,14 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
      * @static
      * @access public
      */
-    static function getContributionFields( ) 
+    static function getContributionFields( )
     {
         $contributionFields = CRM_Contribute_DAO_Contribution::export( );
         require_once 'CRM/Core/OptionValue.php';
         $contributionFields = array_merge( $contributionFields, CRM_Core_OptionValue::getFields($mode ='contribute' ) );
         require_once 'CRM/Contribute/DAO/ContributionType.php';
         $contributionFields = array_merge( $contributionFields, CRM_Contribute_DAO_ContributionType::export( ) );
-        
+
         foreach ($contributionFields as $key => $var) {
             if ($key == 'contribution_contact_id') {
                 continue;
@@ -782,7 +782,7 @@ INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.conta
         return $fields;
     }
 
-    static function getCurrentandGoalAmount( $pageID ) 
+    static function getCurrentandGoalAmount( $pageID )
     {
         $query = "
 SELECT p.goal_amount as goal, sum( c.total_amount ) as total
@@ -797,7 +797,7 @@ GROUP BY p.id
         $config = CRM_Core_Config::singleton( );
         $params = array( 1 => array( $pageID, 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $query, $params );
-        
+
         if ( $dao->fetch( ) ) {
             return array( $dao->goal, $dao->total );
         } else {
@@ -807,16 +807,16 @@ GROUP BY p.id
 
     /**
      * Function to create is honor of
-     * 
+     *
      * @param array $params  associated array of fields (by reference)
      * @param int   $honorId honor Id
      *
      * @return contact id
      */
-    function createHonorContact( &$params, $honorId = null ) 
+    function createHonorContact( &$params, $honorId = null )
     {
         $honorParams = array( 'first_name'    => $params['honor_first_name'],
-                              'last_name'     => $params['honor_last_name'], 
+                              'last_name'     => $params['honor_last_name'],
                               'prefix_id'     => $params['honor_prefix_id'],
                               'email-Primary' => $params['honor_email'] );
         if ( !$honorId ) {
@@ -831,20 +831,20 @@ GROUP BY p.id
             // if we find more than one contact, use the first one
             $honorId  = CRM_Utils_Array::value( 0, $ids );
         }
-         
+
         $contact =& CRM_Contact_BAO_Contact::createProfileContact( $honorParams,
                                                                    CRM_Core_DAO::$_nullArray,
                                                                    $honorId );
         return $contact;
     }
-    
+
     /**
      * Function to get list of contribution In Honor of contact Ids
      *
      * @param int $honorId In Honor of Contact ID
      *
      * @return return the list of contribution fields
-     * 
+     *
      * @access public
      * @static
      */
@@ -859,9 +859,9 @@ GROUP BY p.id
         require_once 'CRM/Contribute/PseudoConstant.php';
         $status = CRM_Contribute_PseudoConstant::contributionStatus($honorDAO->contribution_status_id);
         $type   = CRM_Contribute_PseudoConstant::contributionType();
-        
+
         while( $honorDAO->fetch( ) ) {
-            $params[$honorDAO->id]['honorId']      = $honorDAO->contact_id;            
+            $params[$honorDAO->id]['honorId']      = $honorDAO->contact_id;
             $params[$honorDAO->id]['display_name'] = CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact', $honorDAO->contact_id, 'display_name' );
             $params[$honorDAO->id]['type']         = $type[$honorDAO->contribution_type_id];
             $params[$honorDAO->id]['type_id']      = $honorDAO->contribution_type_id;
@@ -883,7 +883,7 @@ GROUP BY p.id
      * @static
      * @access public
      */
-    static function sortName( $id ) 
+    static function sortName( $id )
     {
         $id = CRM_Utils_Type::escape( $id, 'Integer' );
 
@@ -973,26 +973,26 @@ GROUP BY currency
      * @access public
      * static
      */
-    static function checkDuplicateIds( $params ) 
+    static function checkDuplicateIds( $params )
     {
         $dao = new CRM_Contribute_DAO_Contribution();
-        
+
         $clause = array( );
         $input = array( );
         foreach ( $params as $k=>$v ) {
             if( $v ) {
-                $clause[]  = "$k = '$v'";                
-            } 
+                $clause[]  = "$k = '$v'";
+            }
         }
         $clause = implode( ' AND ', $clause );
         $query = "SELECT id FROM civicrm_contribution WHERE $clause";
         $dao = CRM_Core_DAO::executeQuery( $query, $input );
-       
+
         while ( $dao->fetch( ) ) {
             $result = $dao->id;
-            return $result;            
+            return $result;
         }
-        return NULL;        
+        return NULL;
     }
 
     /**
@@ -1012,35 +1012,35 @@ GROUP BY currency
 
         $paymentDetails = array( );
         $componentClause = ' IN ( ' . implode( ',', $componentIds ) . ' ) ';
-        
+
         if ( $exportMode == CRM_Export_Form_Select::EVENT_EXPORT ) {
-            $componentSelect = " civicrm_participant_payment.participant_id id"; 
+            $componentSelect = " civicrm_participant_payment.participant_id id";
             $additionalClause = "
 INNER JOIN civicrm_participant_payment ON (civicrm_contribution.id = civicrm_participant_payment.contribution_id
 AND civicrm_participant_payment.participant_id {$componentClause} )
 ";
         } else if ( $exportMode == CRM_Export_Form_Select::MEMBER_EXPORT ) {
-            $componentSelect = " civicrm_membership_payment.membership_id id"; 
+            $componentSelect = " civicrm_membership_payment.membership_id id";
             $additionalClause = "
 INNER JOIN civicrm_membership_payment ON (civicrm_contribution.id = civicrm_membership_payment.contribution_id
 AND civicrm_membership_payment.membership_id {$componentClause} )
 ";
         } else if ( $exportMode == CRM_Export_Form_Select::PLEDGE_EXPORT ) {
-            $componentSelect = " civicrm_pledge_payment.id id"; 
+            $componentSelect = " civicrm_pledge_payment.id id";
             $additionalClause = "
 INNER JOIN civicrm_pledge_payment ON (civicrm_contribution.id = civicrm_pledge_payment.contribution_id
 AND civicrm_pledge_payment.pledge_id {$componentClause} )
 ";
         }
-        
+
         $query = " SELECT total_amount, contribution_status.name as status_id, contribution_status.label as status, payment_instrument.name as payment_instrument, receive_date,
                           trxn_id, {$componentSelect}
-FROM civicrm_contribution 
+FROM civicrm_contribution
 LEFT JOIN civicrm_option_group option_group_payment_instrument ON ( option_group_payment_instrument.name = 'payment_instrument')
 LEFT JOIN civicrm_option_value payment_instrument ON (civicrm_contribution.payment_instrument_id = payment_instrument.value
      AND option_group_payment_instrument.id = payment_instrument.option_group_id )
 LEFT JOIN civicrm_option_group option_group_contribution_status ON (option_group_contribution_status.name = 'contribution_status')
-LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.contribution_status_id = contribution_status.value 
+LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.contribution_status_id = contribution_status.value
                                AND option_group_contribution_status.id = contribution_status.option_group_id )
 {$additionalClause}
 ";
@@ -1060,13 +1060,13 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
 
     /**
      *  Function to create address associated with contribution record.
-     *  @param array $params an associated array 
-     *  @param int   $billingID $billingLocationTypeID  
+     *  @param array $params an associated array
+     *  @param int   $billingID $billingLocationTypeID
      *
      *  @return address id
      *  @static
      */
-    static function createAddress( &$params, $billingLocationTypeID ) 
+    static function createAddress( &$params, $billingLocationTypeID )
     {
         $billingFields = array( 'street_address',
                                 'city',
@@ -1075,12 +1075,12 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
                                 'country_id'
                                 );
 
-        //build address array 
+        //build address array
         $addressParams = array( );
         $addressParams['location_type_id'] = $billingLocationTypeID;
         $addressParams['is_billing'] = 1;
         $addressParams['address_name'] = "{$params['billing_first_name']}" . CRM_Core_DAO::VALUE_SEPARATOR . "{$params['billing_middle_name']}" . CRM_Core_DAO::VALUE_SEPARATOR . "{$params['billing_last_name']}";
-        
+
         foreach ( $billingFields as $value ) {
             $addressParams[$value] = $params["billing_{$value}-{$billingLocationTypeID}"];
         }
@@ -1090,16 +1090,16 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
 
         return $address->id;
     }
-    
+
     /**
      *  Function to create soft contributon with contribution record.
-     *  @param array $params an associated array 
+     *  @param array $params an associated array
      *
      *  @return soft contribution id
      *  @static
      */
-    static function addSoftContribution( $params ) 
-    { 
+    static function addSoftContribution( $params )
+    {
         require_once 'CRM/Contribute/DAO/ContributionSoft.php';
         $softContribution = new CRM_Contribute_DAO_ContributionSoft();
         $softContribution->copyValues($params);
@@ -1111,18 +1111,18 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
     	}
 
         return $softContribution->save();
-    } 
-    
-    
+    }
+
+
     /**
      *  Function to retrieve soft contributon for contribution record.
-     *  @param array $params an associated array 
+     *  @param array $params an associated array
      *
      *  @return soft contribution id
      *  @static
      */
     static function getSoftContribution( $params, $all = false )
-    { 
+    {
         require_once 'CRM/Contribute/DAO/ContributionSoft.php';
 
         $cs = new CRM_Contribute_DAO_ContributionSoft( );
@@ -1139,18 +1139,18 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
         }
         return $softContribution;
     }
-    
+
     /**
      *  Function to retrieve the list of soft contributons for given contact.
-     *  @param int $contact_id contact id 
+     *  @param int $contact_id contact id
      *
      *  @return array
      *  @static
      */
     static function getSoftContributionList( $contact_id, $isTest = 0 )
-    { 
+    {
         $query = "SELECT ccs.id, ccs.amount as amount,
-                         ccs.contribution_id, 
+                         ccs.contribution_id,
                          ccs.pcp_id,
                          ccs.pcp_display_in_roll,
                          ccs.pcp_roll_nickname,
@@ -1165,15 +1165,15 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
                   FROM civicrm_contribution_soft ccs
                        LEFT JOIN civicrm_contribution cc
                               ON ccs.contribution_id = cc.id
-                       LEFT JOIN civicrm_pcp cp 
+                       LEFT JOIN civicrm_pcp cp
                               ON ccs.pcp_id = cp.id
                        LEFT JOIN civicrm_contact contact
                               ON ccs.contribution_id = cc.id AND
-                                 cc.contact_id = contact.id 
+                                 cc.contact_id = contact.id
                        LEFT JOIN civicrm_contribution_type cct
                               ON cc.contribution_type_id = cct.id
                   WHERE cc.is_test = {$isTest} AND ccs.contact_id = " . $contact_id;
-       
+
         $cs = CRM_Core_DAO::executeQuery( $query, CRM_Core_DAO::$_nullArray );
         require_once 'CRM/Contribute/PseudoConstant.php';
         $contributionStatus = CRM_Contribute_PseudoConstant::contributionStatus( );
@@ -1197,27 +1197,27 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
                 $result[$cs->id]['contribution_status'] = $result[$cs->id]['contribution_status'].'<br /> (test)';
             }
         }
-        return $result;        
-    }    
-    
+        return $result;
+    }
+
     static function getSoftContributionTotals( $contact_id, $isTest = 0 )
     {
         $query = "SELECT SUM(amount) as amount,
                          AVG(total_amount) as average,
                          cc.currency
-                  FROM civicrm_contribution_soft  ccs 
-                       LEFT JOIN civicrm_contribution cc 
-                              ON ccs.contribution_id = cc.id 
-                  WHERE cc.is_test = {$isTest} AND 
+                  FROM civicrm_contribution_soft  ccs
+                       LEFT JOIN civicrm_contribution cc
+                              ON ccs.contribution_id = cc.id
+                  WHERE cc.is_test = {$isTest} AND
                         ccs.contact_id = {$contact_id}
                   GROUP BY currency ";
-        
+
         $cs = CRM_Core_DAO::executeQuery( $query, CRM_Core_DAO::$_nullArray );
-        
+
         $count  = 0;
         $amount = $average = array( );
         require_once 'CRM/Utils/Money.php';
-        
+
         while ( $cs->fetch( ) ) {
             if ( $cs->amount > 0 ) {
                 $count++;
@@ -1236,14 +1236,14 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
         return array( 0, 0 );
     }
 
-    /**                                                           
+    /**
      * Delete billing address record related contribution
-     * @param int $contact_id contact id 
-     * @param int $contribution_id contributionId 
-     * @access public 
-     * @static 
-     */ 
-    static function deleteAddress( $contributionId = null, $contactId = null ) 
+     * @param int $contact_id contact id
+     * @param int $contribution_id contributionId
+     * @access public
+     * @static
+     */
+    static function deleteAddress( $contributionId = null, $contactId = null )
     {
         $clauses     = array( );
         $contactJoin = null;
@@ -1264,56 +1264,56 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
         $condition = implode( ' OR ', $clauses );
 
         $query = "
-SELECT     ca.id 
-FROM       civicrm_address ca 
-INNER JOIN civicrm_contribution cc ON cc.address_id = ca.id 
+SELECT     ca.id
+FROM       civicrm_address ca
+INNER JOIN civicrm_contribution cc ON cc.address_id = ca.id
            $contactJoin
 WHERE      $condition
 ";
         $dao = CRM_Core_DAO::executeQuery( $query );
-        
+
         while( $dao->fetch( ) ) {
             require_once 'CRM/Core/BAO/Block.php';
             $params = array ( 'id' => $dao->id );
             CRM_Core_BAO_Block::blockDelete( 'Address', $params );
         }
     }
-    
+
     /**
-     * This function check online pending contribution associated w/ 
+     * This function check online pending contribution associated w/
      * Online Event Registration or Online Membership signup.
-     * 
+     *
      * @param int    $componentId   participant/membership id.
      * @param string $componentName Event/Membership.
      *
      * @return $contributionId pending contribution id.
      * @static
      */
-    static function checkOnlinePendingContribution( $componentId, $componentName ) 
+    static function checkOnlinePendingContribution( $componentId, $componentName )
     {
         $contributionId = null;
-        if ( !$componentId || 
+        if ( !$componentId ||
              !in_array( $componentName, array( 'Event', 'Membership' ) ) ) {
             return $contributionId;
         }
-        
+
         if ( $componentName == 'Event' ) {
             $idName         = 'participant_id';
             $componentTable = 'civicrm_participant';
-            $paymentTable   = 'civicrm_participant_payment'; 
+            $paymentTable   = 'civicrm_participant_payment';
             $source         = ts( 'Online Event Registration' );
         }
-        
+
         if ( $componentName == 'Membership' ) {
             $idName         = 'membership_id';
             $componentTable = 'civicrm_membership';
             $paymentTable   = 'civicrm_membership_payment';
             $source         =  ts( 'Online Contribution' );
         }
-        
+
         require_once 'CRM/Contribute/PseudoConstant.php';
         $pendingStatusId = array_search( 'Pending',  CRM_Contribute_PseudoConstant::contributionStatus( null, 'name' ) );
-        
+
         $query = "
    SELECT  component.id as {$idName},
            componentPayment.contribution_id as contribution_id,
@@ -1324,11 +1324,11 @@ WHERE      $condition
 LEFT JOIN  $paymentTable componentPayment    ON ( componentPayment.{$idName} = component.id )
 LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_id = contribution.id )
     WHERE  component.id = {$componentId}";
-        
+
         $dao = CRM_Core_DAO::executeQuery( $query );
-        
+
         while( $dao->fetch( ) ) {
-            if ( $dao->contribution_id && 
+            if ( $dao->contribution_id &&
                  $dao->is_pay_later &&
                  $dao->contribution_status_id == $pendingStatusId &&
                  strpos( $dao->source, $source ) !== false ) {
@@ -1336,14 +1336,14 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
                 $dao->free( );
             }
         }
-        
-        return $contributionId; 
+
+        return $contributionId;
     }
-    
+
     /**
      * This function update contribution as well as related objects.
      */
-    function transitionComponents( $params, $processContributionObject = false ) 
+    function transitionComponents( $params, $processContributionObject = false )
     {
         // get minimum required values.
         $contactId               = CRM_Utils_Array::value( 'contact_id',                      $params );
@@ -1351,15 +1351,15 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
         $componentName           = CRM_Utils_Array::value( 'componentName',                   $params );
         $contributionId          = CRM_Utils_Array::value( 'contribution_id',                 $params );
         $contributionStatusId    = CRM_Utils_Array::value( 'contribution_status_id',          $params );
-        
+
         // if we already processed contribution object pass previous status id.
-        $previousContriStatusId  = CRM_Utils_Array::value( 'previous_contribution_status_id', $params ); 
-        
+        $previousContriStatusId  = CRM_Utils_Array::value( 'previous_contribution_status_id', $params );
+
         $updateResult = array( );
-        
+
         require_once 'CRM/Contribute/PseudoConstant.php';
         $contributionStatuses = CRM_Contribute_PseudoConstant::contributionStatus( null, 'name' );
-        
+
         // we process only ( Completed, Cancelled, or Failed ) contributions.
         if ( ! $contributionId ||
              ! in_array( $contributionStatusId, array( array_search( 'Completed', $contributionStatuses ),
@@ -1367,46 +1367,46 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
                                                        array_search( 'Failed',    $contributionStatuses ) ) ) ) {
             return $updateResult;
         }
-        
+
         if ( !$componentName || !$componentId ) {
             // get the related component details.
             $componentDetails = self::getComponentDetails( $contributionId );
         } else {
             $componentDetails['contact_id'] = $contactId;
             $componentDetails['component' ] = $componentName;
-            
+
             if ( $componentName = 'event' ) {
                 $componentDetails['participant'] = $componentId;
             } else {
                 $componentDetails['membership'] = $componentId;
             }
         }
-        
+
         if ( CRM_Utils_Array::value( 'contact_id', $componentDetails ) ) {
             $componentDetails['contact_id'] = CRM_Core_DAO::getFieldValue( 'CRM_Contribute_DAO_Contribution',
                                                                            $contributionId,
-                                                                           'contact_id' ); 
+                                                                           'contact_id' );
         }
-        
+
         // do check for required ids.
-        if ( !CRM_Utils_Array::value( 'membership',     $componentDetails ) && 
+        if ( !CRM_Utils_Array::value( 'membership',     $componentDetails ) &&
              !CRM_Utils_Array::value( 'participant',    $componentDetails ) &&
              !CRM_Utils_Array::value( 'pledge_payment', $componentDetails ) ||
              !CRM_Utils_Array::value( 'contact_id',     $componentDetails ) ) {
             return $updateResult;
         }
-        
+
         //now we are ready w/ required ids, start processing.
-        
+
         require_once 'CRM/Core/Payment/BaseIPN.php';
         $baseIPN = new CRM_Core_Payment_BaseIPN( );
-        
+
         $input = $ids = $objects = array( );
-        
+
         $input['component']       = CRM_Utils_Array::value( 'component',      $componentDetails );
         $ids['contribution']      = $contributionId;
         $ids['contact'     ]      = CRM_Utils_Array::value( 'contact_id',     $componentDetails );
-        $ids['membership']        = CRM_Utils_Array::value( 'membership',     $componentDetails ); 
+        $ids['membership']        = CRM_Utils_Array::value( 'membership',     $componentDetails );
         $ids['participant']       = CRM_Utils_Array::value( 'participant',    $componentDetails );
         $ids['event']             = CRM_Utils_Array::value( 'event',          $componentDetails );
         $ids['pledge_payment']    = CRM_Utils_Array::value( 'pledge_payment', $componentDetails );
@@ -1416,12 +1416,12 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
         if ( ! $baseIPN->validateData( $input, $ids, $objects, false ) ) {
             CRM_Core_Error::fatal( );
         }
-        
+
         $memberships    =& $objects['membership'    ];
         $participant    =& $objects['participant'   ];
         $pledgePayment  =& $objects['pledge_payment'];
         $contribution   =& $objects['contribution'  ];
-        
+
         if ( $pledgePayment ) {
             require_once 'CRM/Pledge/BAO/PledgePayment.php';
             $pledgePaymentIDs = array ( );
@@ -1430,19 +1430,19 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
             }
             $pledgeID = $pledgePayment[0]->pledge_id;
         }
-        
-        require_once 'CRM/Event/PseudoConstant.php';        
+
+        require_once 'CRM/Event/PseudoConstant.php';
         require_once 'CRM/Event/BAO/Participant.php';
         require_once 'CRM/Pledge/BAO/Pledge.php';
         require_once 'CRM/Member/PseudoConstant.php';
         require_once 'CRM/Member/BAO/Membership.php';
-        
+
         $membershipStatuses  = CRM_Member_PseudoConstant::membershipStatus( );
-       
+
         if( $participant ) {
             $participantStatuses = CRM_Event_PseudoConstant::participantStatus( );
-            $oldStatus           = CRM_Core_DAO::getFieldValue( 'CRM_Event_DAO_Participant', 
-                                                                $participant->id, 
+            $oldStatus           = CRM_Core_DAO::getFieldValue( 'CRM_Event_DAO_Participant',
+                                                                $participant->id,
                                                                 'status_id' );
         }
         // we might want to process contribution object.
@@ -1453,7 +1453,7 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
                     if ( $membership ) {
                         $membership->status_id = array_search( 'Cancelled', $membershipStatuses );
                         $membership->save( );
-                        
+
                         $updateResult['updatedComponents']['CiviMember'] = $membership->status_id;
                         if ( $processContributionObject ) {
                             $processContribution = true;
@@ -1465,16 +1465,16 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
             if ( $participant ) {
                 $updatedStatusId = array_search('Cancelled', $participantStatuses);
                 CRM_Event_BAO_Participant::updateParticipantStatus( $participant->id, $oldStatus, $updatedStatusId, true );
-                
+
                 $updateResult['updatedComponents']['CiviEvent'] = $updatedStatusId;
                 if ( $processContributionObject ) {
                     $processContribution = true;
                 }
             }
-            
+
             if ( $pledgePayment ) {
-                CRM_Pledge_BAO_PledgePayment::updatePledgePaymentStatus( $pledgeID, $pledgePaymentIDs, $contributionStatusId ); 
-                
+                CRM_Pledge_BAO_PledgePayment::updatePledgePaymentStatus( $pledgeID, $pledgePaymentIDs, $contributionStatusId );
+
                 $updateResult['updatedComponents']['CiviPledge'] = $contributionStatusId;
                 if ( $processContributionObject ) {
                     $processContribution = true;
@@ -1486,7 +1486,7 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
                     if ( $membership ) {
                         $membership->status_id = array_search( 'Expired', $membershipStatuses );
                         $membership->save( );
-                        
+
                         $updateResult['updatedComponents']['CiviMember'] = $membership->status_id;
                         if ( $processContributionObject ) {
                             $processContribution = true;
@@ -1497,52 +1497,52 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
             if ( $participant ) {
                 $updatedStatusId = array_search( 'Cancelled', $participantStatuses );
                 CRM_Event_BAO_Participant::updateParticipantStatus( $participant->id, $oldStatus, $updatedStatusId, true );
-                
+
                 $updateResult['updatedComponents']['CiviEvent'] = $updatedStatusId;
                 if ( $processContributionObject ) {
                     $processContribution = true;
                 }
             }
-            
+
             if ( $pledgePayment ) {
                 CRM_Pledge_BAO_PledgePayment::updatePledgePaymentStatus( $pledgeID, $pledgePaymentIDs, $contributionStatusId );
-                
+
                 $updateResult['updatedComponents']['CiviPledge'] = $contributionStatusId;
                 if ( $processContributionObject ) {
                     $processContribution = true;
                 }
             }
         } else if ( $contributionStatusId == array_search( 'Completed', $contributionStatuses ) ) {
-            
+
             // only pending contribution related object processed.
-            if ( $previousContriStatusId && 
-                 ($previousContriStatusId != array_search( 'Pending', $contributionStatuses) ) ) { 
+            if ( $previousContriStatusId &&
+                 ($previousContriStatusId != array_search( 'Pending', $contributionStatuses) ) ) {
                 // this is case when we already processed contribution object.
                 return $updateResult;
-            } else if ( !$previousContriStatusId && 
-                        $contribution->contribution_status_id != array_search( 'Pending', $contributionStatuses ) ) { 
+            } else if ( !$previousContriStatusId &&
+                        $contribution->contribution_status_id != array_search( 'Pending', $contributionStatuses ) ) {
                 // this is case when we are going to process contribution object later.
                 return $updateResult;
             }
-            
+
             if ( is_array( $memberships ) ) {
                 foreach ($memberships as $membership) {
                     if ( $membership ) {
                         $format = '%Y%m%d';
-                        
-                        require_once 'CRM/Member/BAO/MembershipType.php';  
+
+                        require_once 'CRM/Member/BAO/MembershipType.php';
                         //CRM-4523
                         $currentMembership = CRM_Member_BAO_Membership::getContactMembership( $membership->contact_id,
-                                                                                              $membership->membership_type_id, 
+                                                                                              $membership->membership_type_id,
                                                                                               $membership->is_test, $membership->id );
-                        
+
                         // CRM-8141 update the membership type with the value recorded in log when membership created/renewed
                         // this picks up membership type changes during renewals
                         $sql = "
-SELECT    membership_type_id 
-FROM      civicrm_membership_log 
-WHERE     membership_id=$membership->id 
-ORDER BY  id DESC 
+SELECT    membership_type_id
+FROM      civicrm_membership_log
+WHERE     membership_id=$membership->id
+ORDER BY  id DESC
 LIMIT     1;";
                         require_once 'CRM/Core/DAO.php';
                         $dao = new CRM_Core_DAO;
@@ -1554,54 +1554,54 @@ LIMIT     1;";
                             } // else fall back to using current membership type
                         } // else fall back to using current membership type
                         $dao->free();
-                        
+
                         if ( $currentMembership ) {
-                            CRM_Member_BAO_Membership::fixMembershipStatusBeforeRenew( $currentMembership, 
+                            CRM_Member_BAO_Membership::fixMembershipStatusBeforeRenew( $currentMembership,
                                                                                        $changeToday = null  );
-                            $dates = CRM_Member_BAO_MembershipType::getRenewalDatesForMembershipType( $membership->id, 
+                            $dates = CRM_Member_BAO_MembershipType::getRenewalDatesForMembershipType( $membership->id,
                                                                                                       $changeToday = null );
                             $dates['join_date'] =  CRM_Utils_Date::customFormat($currentMembership['join_date'], $format );
                         } else {
                             $dates = CRM_Member_BAO_MembershipType::getDatesForMembershipType($membership->membership_type_id);
                         }
-                        
+
                         //get the status for membership.
                         require_once 'CRM/Member/BAO/MembershipStatus.php';
-                        $calcStatus = CRM_Member_BAO_MembershipStatus::getMembershipStatusByDate( $dates['start_date'], 
-                                                                                                  $dates['end_date'], 
+                        $calcStatus = CRM_Member_BAO_MembershipStatus::getMembershipStatusByDate( $dates['start_date'],
+                                                                                                  $dates['end_date'],
                                                                                                   $dates['join_date'],
-                                                                                                  'today', 
+                                                                                                  'today',
                                                                                                   true );
-                        
+
                         $formatedParams = array( 'status_id'     => CRM_Utils_Array::value( 'id', $calcStatus,
                                                                                             array_search( 'Current', $membershipStatuses ) ),
                                                  'join_date'     => CRM_Utils_Date::customFormat( $dates['join_date'],     $format ),
                                                  'start_date'    => CRM_Utils_Date::customFormat( $dates['start_date'],    $format ),
                                                  'end_date'      => CRM_Utils_Date::customFormat( $dates['end_date'],      $format ),
                                                  'reminder_date' => CRM_Utils_Date::customFormat( $dates['reminder_date'], $format ) );
-                        
+
                         $membership->copyValues( $formatedParams );
                         $membership->save( );
-                    
+
                         //updating the membership log
                         $membershipLog = array();
                         $membershipLog = $formatedParams;
                         $logStartDate  = CRM_Utils_Date::customFormat( $dates['log_start_date'], $format );
                         $logStartDate  = ($logStartDate) ? CRM_Utils_Date::isoToMysql( $logStartDate ) : $formatedParams['start_date'];
-                        
+
                         $membershipLog['start_date']    = $logStartDate;
                         $membershipLog['membership_id'] = $membership->id;
                         $membershipLog['modified_id']   = $membership->contact_id;
                         $membershipLog['modified_date'] = date('Ymd');
                         $membershipLog['membership_type_id'] = $membership->membership_type_id;
-                        
+
                         require_once 'CRM/Member/BAO/MembershipLog.php';
                         CRM_Member_BAO_MembershipLog::add( $membershipLog, CRM_Core_DAO::$_nullArray );
-                        
-                        //update related Memberships.              
+
+                        //update related Memberships.
                         CRM_Member_BAO_Membership::updateRelatedMemberships( $membership->id, $formatedParams );
-                        
-                        $updateResult['membership_end_date']             = CRM_Utils_Date::customFormat( $dates['end_date'], 
+
+                        $updateResult['membership_end_date']             = CRM_Utils_Date::customFormat( $dates['end_date'],
                                                                                                          '%B %E%f, %Y');
                         $updateResult['updatedComponents']['CiviMember'] = $membership->status_id;
                         if ( $processContributionObject ) {
@@ -1610,58 +1610,58 @@ LIMIT     1;";
                     }
                 }
             }
-            
-            if ( $participant ) { 
+
+            if ( $participant ) {
                 $updatedStatusId = array_search( 'Registered', $participantStatuses );
                 CRM_Event_BAO_Participant::updateParticipantStatus( $participant->id, $oldStatus, $updatedStatusId, true );
-                
+
                 $updateResult['updatedComponents']['CiviEvent'] = $updatedStatusId;
                 if ( $processContributionObject ) {
                     $processContribution = true;
                 }
             }
-            
+
             if ( $pledgePayment ) {
-                CRM_Pledge_BAO_PledgePayment::updatePledgePaymentStatus( $pledgeID, $pledgePaymentIDs, $contributionStatusId );   
-                
+                CRM_Pledge_BAO_PledgePayment::updatePledgePaymentStatus( $pledgeID, $pledgePaymentIDs, $contributionStatusId );
+
                 $updateResult['updatedComponents']['CiviPledge'] = $contributionStatusId;
                 if ( $processContributionObject ) {
                     $processContribution = true;
                 }
             }
         }
-        
+
         // process contribution object.
         if ( $processContribution ) {
             require_once 'CRM/Contribute/BAO/Contribution.php';
             $contributionParams = array( );
             $fields = array( 'contact_id', 'total_amount', 'receive_date', 'is_test', 'campaign_id',
-                             'payment_instrument_id', 'trxn_id', 'invoice_id', 'contribution_type_id', 
+                             'payment_instrument_id', 'trxn_id', 'invoice_id', 'contribution_type_id',
                              'contribution_status_id', 'non_deductible_amount', 'receipt_date', 'check_number' );
             foreach ( $fields as $field ) {
                 if ( !CRM_Utils_Array::value( $field, $params ) ) continue;
                 $contributionParams[$field] = $params[$field];
             }
-            
+
             $ids = array( 'contribution' => $contributionId );
             require_once 'CRM/Contribute/BAO/Contribution.php';
             $contribution = CRM_Contribute_BAO_Contribution::create( $contributionParams, $ids );
         }
-        
-        return $updateResult; 
+
+        return $updateResult;
     }
-    
+
     /**
      * This function return all contribution related object ids.
      *
      */
-    function getComponentDetails( $contributionId ) 
+    function getComponentDetails( $contributionId )
     {
         $componentDetails = $pledgePayment = array( );
         if ( !$contributionId ) {
             return $componentDetails;
         }
-        
+
         $query = "
 SELECT    c.id                 as contribution_id,
           c.contact_id         as contact_id,
@@ -1677,7 +1677,7 @@ LEFT JOIN civicrm_participant         p    ON pp.participant_id  = p.id
 LEFT JOIN civicrm_membership          m    ON m.id  = mp.membership_id
 LEFT JOIN civicrm_pledge_payment      pgp  ON pgp.contribution_id  = c.id
 WHERE     c.id = $contributionId";
-        
+
         $dao = CRM_Core_DAO::executeQuery( $query );
         $componentDetails = array();
 
@@ -1701,22 +1701,22 @@ WHERE     c.id = $contributionId";
                 $pledgePayment[] = $dao->pledge_payment_id;
             }
         }
-        
+
         if ( $pledgePayment ) {
-            $componentDetails['pledge_payment'] = $pledgePayment; 
+            $componentDetails['pledge_payment'] = $pledgePayment;
         }
-        
+
         return $componentDetails;
     }
-    
-    function contributionCount( $contactId, $includeSoftCredit = true, $includeHonoree = true ) 
+
+    function contributionCount( $contactId, $includeSoftCredit = true, $includeHonoree = true )
     {
         if ( !$contactId ) return 0;
-        
+
         $fromClause      = "civicrm_contribution contribution";
         $whereConditions = array( "contribution.contact_id = {$contactId}" );
         if ( $includeSoftCredit ) {
-            $fromClause       .= " LEFT JOIN civicrm_contribution_soft softContribution 
+            $fromClause       .= " LEFT JOIN civicrm_contribution_soft softContribution
                                              ON ( contribution.id = softContribution.contribution_id )";
             $whereConditions[] = " softContribution.contact_id = {$contactId}";
         }
@@ -1724,53 +1724,53 @@ WHERE     c.id = $contributionId";
             $whereConditions[] = " contribution.honor_contact_id = {$contactId}";
         }
         $whereClause = " contribution.is_test = 0 AND ( " . implode( ' OR ', $whereConditions ). " )";
-        
-        $query = "       
+
+        $query = "
    SELECT  count( contribution.id ) count
      FROM  {$fromClause}
     WHERE  {$whereClause}";
-        
+
         return CRM_Core_DAO::singleValueQuery( $query );
     }
 
-    /**                                                           
+    /**
      * Function to get individual id for onbehalf contribution
-     * @param  int   $contributionId  contribution id 
+     * @param  int   $contributionId  contribution id
      * @param  int   $contributorId   contributer id
      * @return array $ids             containing organization id and individual id
-     * @access public 
+     * @access public
      */
     function getOnbehalfIds( $contributionId, $contributorId = null ) {
-        
+
         $ids = array();
-        
+
         if ( !$contributionId ) {
             return $ids;
         }
-        
+
         // fetch contributor id if null
         if ( !$contributorId ) {
             require_once 'CRM/Core/DAO.php';
             $contributorId = CRM_Core_DAO::getFieldValue( 'CRM_Contribute_DAO_Contribution',
                                                           $contributionId, 'contact_id' );
         }
-        
+
         require_once 'CRM/Core/PseudoConstant.php';
         $activityTypeIds = CRM_Core_PseudoConstant::activityType( true, false, false, 'name' );
         $activityTypeId  = array_search( 'Contribution', $activityTypeIds );
-        
+
         if ( $activityTypeId && $contributorId ) {
             $activityQuery  = "
-SELECT source_contact_id 
-  FROM civicrm_activity 
- WHERE activity_type_id   = %1 
+SELECT source_contact_id
+  FROM civicrm_activity
+ WHERE activity_type_id   = %1
    AND source_record_id   = %2";
-            
+
             $params = array( 1 => array( $activityTypeId, 'Integer' ),
                              2 => array( $contributionId, 'Integer' ) );
-            
+
             $sourceContactId = CRM_Core_DAO::singleValueQuery( $activityQuery , $params );
-            
+
             // for on behalf contribution source is individual and contributor is organization
             if ( $sourceContactId && $sourceContactId != $contributorId ) {
                 $relationshipTypeIds = CRM_Core_PseudoConstant::relationshipType( 'name' );
@@ -1781,7 +1781,7 @@ SELECT source_contact_id
                         break;
                     }
                 }
-                
+
                 require_once 'CRM/Contact/DAO/Relationship.php';
                 $rel = new CRM_Contact_DAO_Relationship();
                 $rel->relationship_type_id = $relationshipTypeId;
@@ -1793,11 +1793,11 @@ SELECT source_contact_id
                 }
             }
         }
-        
+
         return $ids;
     }
 
-    function getContributionDates( ) 
+    function getContributionDates( )
     {
         $config = CRM_Core_Config::singleton( );
         $currentMonth = date('m');
@@ -1813,11 +1813,11 @@ SELECT source_contact_id
         $yearDate = $config->fiscalYearStart;
         $yearDate = array_merge( $year, $yearDate);
         $yearDate = CRM_Utils_Date::format( $yearDate );
-        
+
         $monthDate = date('Ym') . '01';
-        
+
         $now = date( 'Ymd' );
-        
+
         return array( 'now'       => $now,
                       'yearDate'  => $yearDate,
                       'monthDate' => $monthDate );
