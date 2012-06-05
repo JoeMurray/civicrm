@@ -1561,7 +1561,8 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
    * @static
    * @access public
    */
-  static function buildProfile(&$form, &$field, $mode, $contactId = NULL, $online = FALSE, $onBehalf = FALSE) {
+    static function buildProfile( &$form, &$field, $mode, $contactId = null, $online = false, $onBehalf = false, $prefix = '' )
+    {
     require_once 'CRM/Profile/Form.php';
     require_once 'CRM/Core/OptionGroup.php';
     require_once 'CRM/Core/BAO/UFField.php';
@@ -1589,8 +1590,10 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
     }
     elseif ($contactId && !$online) {
       $name = "field[$contactId][$fieldName]";
-    }
-    else {
+        } else if (!empty($prefix)){
+          $name = $prefix ."[$fieldName]";
+        }
+        else {
       $name = $fieldName;
     }
 
