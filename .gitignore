@@ -4,3 +4,5 @@ drupal
 .settings
 *.afm.php
 packages/dompdf/lib/fonts/log.htm
+.svn
+
