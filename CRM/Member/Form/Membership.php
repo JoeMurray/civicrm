@@ -1139,9 +1139,17 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
     // Retrieve the name and email of the current user - this will be the FROM for the receipt email
     list($userName, $userEmail) = CRM_Contact_BAO_Contact_Location::getEmailDetails($ids['userId']);
 
+      //CRM-10223 - allow contribution to be recorded against different contact
+    if(CRM_Utils_Array::value(1, $this->_params['contribution_contact_select_id'])){
+        $params['contribution_contact_id'] = $this->_params['contribution_contact_select_id'][1];
+        if(CRM_Utils_Array::value('honor_type_id', $this->_params)){
+          $params['honor_type_id'] = $this->_params['honor_type_id'];
+          $params['honor_contact_id'] = $params['contact_id'];
+        }
+    }
     if (CRM_Utils_Array::value('record_contribution', $formValues)) {
       $recordContribution = array(
-        'total_amount', 'contribution_type_id', 'payment_instrument_id',
+        'total_amount', 'honor_type_id', 'contribution_type_id', 'payment_instrument_id',
         'trxn_id', 'contribution_status_id', 'check_number', 'campaign_id', 'receive_date',
       );
 
@@ -1255,7 +1263,7 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
         }
       }
 
-      $contactID = CRM_Contact_BAO_Contact::createProfileContact($formValues, $fields,
+      $contributionContactID = $contactID = CRM_Contact_BAO_Contact::createProfileContact($formValues, $fields,
         $this->_contactID, NULL, NULL, $ctype
       );
 
@@ -1277,6 +1285,15 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
       // so we copy stuff over to first_name etc.
       $paymentParams = $this->_params;
 
+      //CRM-10377 if payment is by an alternate contact then we need to set that person
+      // as the contact in the payment params
+      if(CRM_Utils_Array::value(1, $this->_params['contribution_contact_select_id'])){
+        $paymentParams['contactID'] = $contributionContactID = $this->_params['contribution_contact_select_id'][1];
+        if(CRM_Utils_Array::value('honor_type_id', $this->_params)){
+          $paymentParams['honor_contact_id'] = $this->_contactID;
+          $paymentParams['honor_type_id'] = $this->_params['honor_type_id'];
+        }
+      }
       if (CRM_Utils_Array::value('send_receipt', $this->_params)) {
         $paymentParams['email'] = $this->_memberEmail;
       }
@@ -1292,15 +1309,15 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
 
         require_once 'CRM/Contribute/Form/Contribution/Confirm.php';
         $contribution = CRM_Contribute_Form_Contribution_Confirm::processContribution($this,
-          $this->_params,
+          $paymentParams,
           $result,
-          $contactID,
+          $contributionContactID,
           $params['contribution_type_id'],
           FALSE,
           TRUE,
           FALSE
         );
-        $paymentParams['contactID'] = $contactID;
+        $paymentParams['contactID'] = $contributionContactID;
         $paymentParams['contributionID'] = $contribution->id;
         $paymentParams['contributionTypeID'] = $contribution->contribution_type_id;
         $paymentParams['contributionPageID'] = $contribution->contribution_page_id;
