@@ -1028,12 +1028,21 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
 
     // set the contact, when contact is selected
     require_once 'CRM/Contact/BAO/Contact/Location.php';
-    if (CRM_Utils_Array::value('contact_select_id', $formValues)) {
-      $this->_contactID = $formValues['contact_select_id'][1];
-      list($this->_memberDisplayName,
-        $this->_memberEmail
-      ) = CRM_Contact_BAO_Contact_Location::getEmailDetails($this->_contactID);
-    }
+        if( CRM_Utils_Array::value('1', $formValues['contribution_contact_select_id'] ) ) {
+            $this->_contributioncontactID = $formValues['contribution_contact_select_id'][1];
+            // we can set memberdisplay name from the form as we know it will be set in this case
+            $this->_memberDisplayName = $params['contribution_contact'][1];
+            list( $dontcare,
+                  $this->_memberEmail ) = CRM_Contact_BAO_Contact_Location::getEmailDetails( $this->_contributioncontactID );
+        }
+        if ( CRM_Utils_Array::value('contact_select_id', $formValues ) ) {
+          $this->_contactID = $formValues['contact_select_id'][1];
+          if(!isset($this->_memberEmail)){
+            //email will go to the payer if different from the membership contact
+            list( $this->_memberDisplayName,
+                  $this->_memberEmail ) = CRM_Contact_BAO_Contact_Location::getEmailDetails( $this->_contactID );
+          }
+        }
 
     $params['contact_id'] = $this->_contactID;
 
