@@ -82,7 +82,7 @@ function civicrm_api3_contribution_create($params) {
 }
 /*
  * Adjust Metadata for Create action
- * 
+ *
  * The metadata is used for setting defaults, documentation & validation
  * @param array $params array or parameters determined by getfields
  */
@@ -157,6 +157,12 @@ function civicrm_api3_contribution_get($params) {
   $inputParams      = array();
   $returnProperties = array();
   $otherVars        = array('sort', 'offset', 'rowCount');
+  if(CRM_Utils_Array::value('return', $params) && !is_array($params['return'])){
+    $returns = explode(',', $params['return']);
+    foreach ($returns as $key => $value) {
+      $returnProperties[$value] = 1;
+    }
+  }
 
   $sort     = NULL;
   $offset   = 0;
@@ -202,7 +208,7 @@ function civicrm_api3_contribution_get($params) {
 }
 /*
  * Adjust Metadata for Get action
- * 
+ *
  * The metadata is used for setting defaults, documentation & validation
  * @param array $params array or parameters determined by getfields
  */
