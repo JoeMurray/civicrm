@@ -87,10 +87,10 @@
                 </div>
             {/if}
             {if $field.options_per_line}
-              <div class="crm-section editrow_{$n}-section form-item" id="editrow-{$n}">
+            	<div class="crm-section editrow_{$n}-section form-item" id="editrow-{$n}">
                     <div class="label">{$form.$n.label}</div>
                     <div class="content edit-value">
-                      {assign var="count" value="1"}
+                	    {assign var="count" value="1"}
                         {strip}
                         <table class="form-layout-compressed">
                         <tr>
@@ -106,20 +106,20 @@
                                   <tr>
                                    {assign var="count" value="1"}
                               {else}
-                             {assign var="count" value=`$count+1`}
+                        	   {assign var="count" value=`$count+1`}
                               {/if}
                           {/if}
                           {/foreach}
                         </tr>
                         </table>
-                      {if $field.html_type eq 'Radio' and $form.formName eq 'Edit' and $field.is_view neq 1 }
+                    	{if $field.html_type eq 'Radio' and $form.formName eq 'Edit' and $field.is_view neq 1 }
                                &nbsp;<span class="crm-clear-link">(<a href="#" title="unselect" onclick="unselectRadio('{$n}', '{$form.formName}'); return false;">{ts}clear{/ts}</a>)</span>
-                      {/if}
+                    	{/if}
                         {/strip}
                     </div>
                     <div class="clear"></div>
                 </div>{* end of main edit section div*}
-          {else}
+        	{else}
                 <div id="editrow-{$n}" class="crm-section editrow_{$n}-section form-item">
                    <div class="label">{$form.$n.label}</div>
                    <div class="edit-value content">
@@ -133,25 +133,25 @@
                        {if $n eq 'email_greeting' or  $n eq 'postal_greeting' or $n eq 'addressee'}
                             {include file="CRM/Profile/Form/GreetingType.tpl"}
                        {elseif ( $n eq 'group' && $form.group ) || ( $n eq 'tag' && $form.tag )}
-                    {include file="CRM/Contact/Form/Edit/TagsAndGroups.tpl" type=$n context="profile"}
+            				{include file="CRM/Contact/Form/Edit/TagsAndGroups.tpl" type=$n context="profile"}
                        {elseif ( $form.$n.name eq 'image_URL' )}
-                          {$form.$n.html}
-                        {if !empty($imageURL)}
-                              <div class="crm-section contact_image-section">
-                                  <div class="content">
-                                      {include file="CRM/Contact/Page/ContactImage.tpl"}
-                                  </div>
-                              </div>
-                           {/if}
-                     {else}
+            	            {$form.$n.html}
+                		    {if !empty($imageURL)}
+                 	 	        <div class="crm-section contact_image-section">
+                 	 	            <div class="content">
+                 	 	                {include file="CRM/Contact/Page/ContactImage.tpl"}
+                 	 	            </div>
+                 	 	        </div>
+                 	        {/if}
+            	       {else}
                            {if ( $field.data_type eq 'Date' or
                                       ( ( ( $n eq 'birth_date' ) or ( $n eq 'deceased_date' ) or ( $n eq 'activity_date_time' ) ) ) ) and $field.is_view neq 1 }
                               {include file="CRM/common/jcalendar.tpl" elementName=$n}
-                          {else}
+               		       {else}
                               {$form.$n.html}
                            {/if}
                            {if (($n eq 'gender') or ($field.html_type eq 'Radio' and $form.formName eq 'Edit' and $field.is_required neq 1)) and
-                          ($field.is_view neq 1)}
+            	       	   ($field.is_view neq 1)}
                                    &nbsp;<span class="crm-clear-link">(<a href="#" title="unselect" onclick="unselectRadio('{$n}', '{$form.formName}'); return false;">{ts}clear{/ts}</a>)</span>
                                {elseif $field.html_type eq 'Autocomplete-Select'}
                                  {if $field.data_type eq 'ContactReference'}
@@ -166,10 +166,10 @@
                 </div>
 
                 {if $form.$n.type eq 'file'}
-                  <div class="crm-section file_displayURL-section file_displayURL{$n}-section"><div class="content">{$customFiles.$n.displayURL}</div></div>
-                  <div class="crm-section file_deleteURL-section file_deleteURL{$n}-section"><div class="content">{$customFiles.$n.deleteURL}</div></div>
+        	        <div class="crm-section file_displayURL-section file_displayURL{$n}-section"><div class="content">{$customFiles.$n.displayURL}</div></div>
+        	        <div class="crm-section file_deleteURL-section file_deleteURL{$n}-section"><div class="content">{$customFiles.$n.deleteURL}</div></div>
                 {/if}
-          {/if}
+        	{/if}
 
             {* Show explanatory text for field if not in 'view' mode *}
             {if $field.help_post && $action neq 4 && $form.$n.html}
@@ -195,12 +195,11 @@
         </fieldset>
         </div>
     {/if}
-  {if !$noButtons}
+
     {if ($action eq 1 and $mode eq 4 ) or ($action eq 2) or ($action eq 8192)}
     <div class="crm-submit-buttons">
          {include file="CRM/common/formButtons.tpl"}{if $isDuplicate}<span class="crm-button">{$form._qf_Edit_upload_duplicate.html}</span>{/if}
     </div>
-    {/if}
     {/if}
      {if $help_post && $action neq 4}<br /><div class="messages help">{$help_post}</div>{/if}
     {/strip}
@@ -239,8 +238,8 @@ invert              = 0
 <script type="text/javascript">
 
 cj(document).ready(function(){
-  cj('#selector tr:even').addClass('odd-row ');
-  cj('#selector tr:odd ').addClass('even-row');
+	cj('#selector tr:even').addClass('odd-row ');
+	cj('#selector tr:odd ').addClass('even-row');
 });
 {/literal}
 {if $context eq 'dialog'}
@@ -252,7 +251,7 @@ cj(document).ready(function(){
     // bind form using 'ajaxForm'
     cj('#Edit').ajaxForm( options );
 
-     // pre-submit callback
+   	// pre-submit callback
     function showRequest(formData, jqForm, options) {
         // formData is an array; here we use $.param to convert it to a string to display it
         // but the form plugin does this for you automatically when it submits the data
@@ -260,6 +259,7 @@ cj(document).ready(function(){
         queryString = queryString + '&snippet=5&gid=' + {/literal}"{$profileID}"{literal};
         var postUrl = {/literal}"{crmURL p='civicrm/profile/create' h=0 }"{literal};
         var blockNo = {/literal}{$blockNo}{literal};
+        var prefix  = {/literal}"{$prefix}"{literal};
         var response = cj.ajax({
            type: "POST",
            url: postUrl,
@@ -268,27 +268,27 @@ cj(document).ready(function(){
            dataType: "json",
            success: function( response ) {
                if ( response.newContactSuccess ) {
-                   cj('#contact_' + blockNo ).val( response.sortName ).focus( );
+                   cj('#' + prefix + 'contact_' + blockNo ).val( response.sortName ).focus( );
                    if ( typeof(allowMultiClient) != "undefined" ) {
                        if ( allowMultiClient ) {
                            var newToken = '{"name":"'+response.sortName+'","id":"'+response.contactID+'"},';
                            cj('ul.token-input-list-facebook, div.token-input-dropdown-facebook' ).remove();
-           //we are having multiple instances, CRM-6932
-        eval( 'addMultiClientOption' + blockNo + "( newToken,  blockNo )" );
+			   	//we are having multiple instances, CRM-6932
+                           eval( 'addMultiClientOption' + prefix + blockNo + "( newToken,  blockNo, prefix )" );
                        }
                    }
-                   cj('input[name="contact_select_id[' + blockNo +']"]').val( response.contactID );
-                   cj('#contact-success-' + blockNo ).show( );
-                   cj('#contact-dialog-' + blockNo ).dialog('close');
+                   cj('input[name="' + prefix + 'contact_select_id[' + blockNo +']"]').val( response.contactID );
+                   cj('#contact-success-' + prefix + blockNo ).show( );
+                   cj('#contact-dialog-' + prefix + blockNo ).dialog('close');
 
-       {/literal}{ if $createCallback}{literal}
-                 profileCreateCallback( blockNo );
-       {/literal}{/if}{literal}
+		   {/literal}{ if $createCallback}{literal}
+        	       profileCreateCallback( blockNo );
+		   {/literal}{/if}{literal}
                }
            }
          }).responseText;
 
-         cj('#contact-dialog-' + blockNo).html( response );
+         cj('#contact-dialog-' + prefix + blockNo).html( response );
 
         // here we could return false to prevent the form from being submitted;
         // returning anything other than false will allow the form submit to continue
