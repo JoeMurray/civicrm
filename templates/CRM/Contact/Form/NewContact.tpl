@@ -28,7 +28,7 @@
   {assign var='fldName' value=$prefix|cat:'contact'}
   {assign var='profSelect' value=$prefix|cat:'profiles'}
     {if $noLabel}
-     	<div>
+     <div>
           <div id="contact-success-{$prefix}{$blockNo}" class="hiddenElement">
               <span class="success-status">{ts}New contact has been created.{/ts}</span>
           </div>
@@ -39,9 +39,9 @@
     	</div>
     {else}
       <tr id="contact-success-{$prefix}{$blockNo}" class="hiddenElement">
-      <td></td>
-      <td><span class="success-status">{ts}New contact has been created.{/ts}</span></td>
-      </tr>
+    <td></td>
+    <td><span class="success-status">{ts}New contact has been created.{/ts}</span></td>
+    </tr>
       <tr class="crm-new-contact-form-block-contact crm-new-contact-form-block-contact-{$blockNo}">
         <td class="label">{$form.$fldName.$blockNo.label}</td>
         <td>{$form.$fldName.$blockNo.html}
@@ -102,11 +102,11 @@
                  close: function(event, ui) {
                    cj('#contact-success-' + prefix + blockNo).fadeOut(5000);
                    cj('#' + prefix + 'profiles-' + blockNo).val('');
-                   {/literal}
-                   {if $newContactCallback}
-                      eval("{$newContactCallback}");
-                   {/if}
-                   {literal}
+        		     {/literal}
+        		     {if $newContactCallback}
+                       eval({$newContactCallback});
+        		     {/if}
+        		     {literal}
                  }
              });
          }
@@ -121,7 +121,7 @@
       var contactUrl = {/literal}"{crmURL p='civicrm/ajax/checkemail' q='id=1&noemail=1' h=0 }"{literal};
 
       cj('#' + prefix + 'contact_' + blockNo).tokenInput( contactUrl, { prePopulate:existingTokens, theme: 'facebook', hintText: hintText });
-      cj('ul.token-input-list-facebook, div.token-input-dropdown-facebook' ).css( 'width', '450px');
+   //   cj('ul.token-input-list-facebook, div.token-input-dropdown-facebook' ).css( 'width', '450px');
 
   }
 
@@ -137,11 +137,6 @@
           selectFirst : false, matchContains: true, minChars: 1
       }).result( function(event, data, formatted) {
           cj( contactHiddenElement ).val(data[1]);
-          {/literal}
-          {if $newContactCallback}
-            eval("{$newContactCallback}");
-          {/if}
-          {literal}
       }).focus( );
 
       cj( contactElement ).click( function( ) {
