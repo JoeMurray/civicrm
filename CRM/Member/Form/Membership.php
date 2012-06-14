@@ -667,6 +667,7 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
       $this->addElement('checkbox', 'contribution_contact', ts('Record Payment from a Different Contact?'));
       $this->add( 'select', 'honor_type_id', ts('Membership payment is : '),
                         array( '' => ts( '-') ) + CRM_Core_PseudoConstant::honor() );
+      require_once 'CRM/Contact/Form/NewContact.php';
       CRM_Contact_Form_NewContact::buildQuickForm($this,1, null, false,'contribution_');
     }
 
@@ -1150,7 +1151,7 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
     }
     if (CRM_Utils_Array::value('record_contribution', $formValues)) {
       $recordContribution = array(
-        'total_amount', 'honor_type_id', 'contribution_type_id', 'payment_instrument_id',
+        'total_amount', 'honor_type_id','contribution_type_id', 'payment_instrument_id',
         'trxn_id', 'contribution_status_id', 'check_number', 'campaign_id', 'receive_date',
       );
 
