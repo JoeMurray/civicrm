@@ -151,7 +151,6 @@ class CRM_Contact_Form_Task_Useradd extends CRM_Core_Form {
       'mail' => $params['email']
     );
     $config->userSystem->checkUserNameEmailExists($check_params, $errors);
-
     return empty($errors) ? TRUE : $errors;
   }
 }
