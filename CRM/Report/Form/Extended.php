@@ -33,6 +33,7 @@
  *
  */
 require_once 'CRM/Report/Form.php';
+require_once 'CRM/Event/PseudoConstant.php';
 
 class CRM_Report_Form_Extended extends CRM_Report_Form {
   protected $_addressField = FALSE;
