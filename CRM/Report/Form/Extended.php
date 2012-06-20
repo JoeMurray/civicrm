@@ -377,6 +377,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
   }
 
   function getMembershipTypeColumns() {
+    require_once 'CRM/Member/PseudoConstant.php';
     return array(
       'civicrm_membership_type' => array(
         'dao' => 'CRM_Member_DAO_MembershipType',
