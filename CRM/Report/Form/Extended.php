@@ -90,7 +90,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
       $this->_groupBy[] = $this->_aliases[$this->_baseTable] . ".id";
     }
     //@todo - this should be in the parent function or at parent level - perhaps build query should do this?
-    if (!empty($this->_groupBy)) {
+    if (!empty($this->_groupBy) && is_array($this->_groupBy)) {
       $this->_groupBy = 'GROUP BY ' . implode(',', $this->_groupBy);
     }
   }
