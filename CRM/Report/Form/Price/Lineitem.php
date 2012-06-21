@@ -56,16 +56,18 @@ class CRM_Report_Form_Price_Lineitem extends CRM_Report_Form_Extended {
         // hack because we are currently using this as base for other report
         // plan is to move functions into Form.php instead & won't be required
         $this->_columns = $this->getContactColumns()
-
-                        + $this->getLineItemColumns()
-                        + $this->getPriceFieldValueColumns()
-                        + $this->getPriceFieldColumns()
-                        + $this->getParticipantColumns()
                         + $this->getEventColumns()
+                        + $this->getParticipantColumns()
                         + $this->getContributionColumns()
+                        + $this->getPriceFieldColumns()
+                        + $this->getPriceFieldValueColumns()
+                        + $this->getLineItemColumns()
+
+
 
                         ;
       }
+      dpm($this->_columns);
         parent::__construct( );
     }
 

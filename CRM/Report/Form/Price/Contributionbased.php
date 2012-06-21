@@ -45,8 +45,9 @@ class CRM_Report_Form_Price_Contributionbased extends CRM_Report_Form_Extended {
     function __construct( ) {
 
         $this->_columns = $this->getContactColumns()
-                        + $this->getLineItemColumns()
                         + $this->getContributionColumns()
+                        + $this->getLineItemColumns()
+
                         ;
        parent::__construct( );
     }
