@@ -7,3 +7,4 @@ drupal
 packages/dompdf/lib/fonts/log.htm
 .svn
 .DS_Store
+settings_location.php
