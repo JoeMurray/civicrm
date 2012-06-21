@@ -167,54 +167,67 @@
                 </fieldset>
             {/if}
     </div>
-     {if $profileAddressFields}
-     <script type="text/javascript">
-    {literal}
+
+{if $profileAddressFields}
+<script type="text/javascript">
+{literal}
 cj( function( ) {
-    cj('#billingcheckbox').click( function( ) {
-
-          sameAddress( this.checked ); // need to only action when check not when toggled, can't assume desired behaviour
-
-        });
-    });
+  cj('#billingcheckbox').click( function( ) {
+    sameAddress( this.checked ); // need to only action when check not when toggled, can't assume desired behaviour
+  });
+});
 
 function sameAddress( setValue ) {
   {/literal}
-    var  addressFields = {$profileAddressFields|@json_encode};
-    {literal}
-    var locationTypeInProfile = 'Primary';
-    var orgID = field = fieldName = null;
-    if ( setValue ) {
+  var addressFields = {$profileAddressFields|@json_encode};
+  {literal}
+  var locationTypeInProfile = 'Primary';
+  var orgID = field = fieldName = null;
+  if ( setValue ) {
     cj('.billing_name_address-section input').each( function( i ){
-            orgID = cj(this).attr('id');
-            field = orgID.split('-');
-            fieldName = field[0].replace('billing_', '');
-            if ( field[1] ) { // ie. there is something after the '-' like billing_street_address-5
-                              // this means it is an address field
-              if(addressFields[fieldName]){
-                fieldName =  fieldName + '-' + addressFields[fieldName];
-              }
-
-            }
-
-              cj(this).val( cj('#' + fieldName ).val() );
-            });
-    cj('.billing_name_address-section select').each( function( i ){
-        orgID = cj(this).attr('id');
-        field = orgID.split('-');
-        fieldName = field[0].replace('billing_', '');
-        fieldNameBase = fieldName.replace('_id', '');
-        if ( field[1] ) { // ie. there is something after the '-' like billing_street_address-5
-                          // this means it is an address field
-          if(addressFields[fieldNameBase]){
-            fieldName =  fieldNameBase + '-' + addressFields[fieldNameBase];
-          }
-
+      orgID = cj(this).attr('id');
+      field = orgID.split('-');
+      fieldName = field[0].replace('billing_', '');
+      if ( field[1] ) { // ie. there is something after the '-' like billing_street_address-5
+        // this means it is an address field
+        if ( addressFields[fieldName] ) {
+          fieldName =  fieldName + '-' + addressFields[fieldName];
         }
-
-          cj(this).val( cj('#' + fieldName ).val() );
-        });
       }
+      cj(this).val( cj('#' + fieldName ).val() );
+    });
+    
+    var stateId;
+    cj('.billing_name_address-section select').each( function( i ){
+      orgID = cj(this).attr('id');
+      field = orgID.split('-');
+      fieldName = field[0].replace('billing_', '');
+      fieldNameBase = fieldName.replace('_id', '');
+      if ( field[1] ) { 
+        // this means it is an address field
+        if ( addressFields[fieldNameBase] ) {
+          fieldName =  fieldNameBase + '-' + addressFields[fieldNameBase];
+        }
+      }
+
+      // don't set value for state-province, since
+      // if need reload state depending on country
+      if ( fieldNameBase == 'state_province' ) {
+        stateId = cj('#' + fieldName ).val();
+      }
+      else {
+        cj(this).val( cj('#' + fieldName ).val() ).change( );   
+      }
+    });
+
+    // now set the state province, we are delaying setdefaults
+    // before onchange takes some time / to load states
+    if ( stateId ) {
+      setTimeout(function(){
+        cj( 'select[id^="billing_state_province_id"]').val( stateId );
+      }, 250);
+    }  
+  }
 }
 {/literal}
 </script>
