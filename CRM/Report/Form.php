@@ -40,7 +40,7 @@ class CRM_Report_Form extends CRM_Core_Form {
   /**
    * Operator types - used for displaying filter elements
    */
-  CONST OP_INT = 1, OP_STRING = 2, OP_DATE = 4, OP_FLOAT = 8, 
+  CONST OP_INT = 1, OP_STRING = 2, OP_DATE = 4, OP_FLOAT = 8,
   OP_SELECT = 64, OP_MULTISELECT = 65, OP_MULTISELECT_SEPARATOR = 66;
 
   /**
@@ -88,7 +88,7 @@ class CRM_Report_Form extends CRM_Core_Form {
 
   protected $_defaults = array();
   /*
-     * By default most reports hide contact id. 
+     * By default most reports hide contact id.
      * Setting this to true makes it available
      */
 
@@ -1296,13 +1296,13 @@ class CRM_Report_Form extends CRM_Core_Form {
     $customFieldCols = array('column_name', 'data_type', 'html_type', 'option_group_id', 'id');
 
     // skip for type date and ContactReference since date format is already handled
-    $query = " 
+    $query = "
 SELECT cg.table_name, cf." . implode(", cf.", $customFieldCols) . ", ov.value, ov.label
-FROM  civicrm_custom_field cf      
-INNER JOIN civicrm_custom_group cg ON cg.id = cf.custom_group_id        
+FROM  civicrm_custom_field cf
+INNER JOIN civicrm_custom_group cg ON cg.id = cf.custom_group_id
 LEFT JOIN civicrm_option_value ov ON cf.option_group_id = ov.option_group_id
-WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND 
-      cg.is_active = 1 AND 
+WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
+      cg.is_active = 1 AND
       cf.is_active = 1 AND
       cf.is_searchable = 1 AND
       cf.data_type   NOT IN ('ContactReference', 'Date') AND
@@ -1725,7 +1725,7 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
                         $from     = CRM_Utils_Array::value("{$fieldName}_from", $this->_params);
                         $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
 
-                        $clause = $this->dateClause($field['name'], $relative, $from, $to, $field['type']);
+                        $clause = $this->dateClause($field['dbAlias'], $relative, $from, $to, $field['type']);
                       }
                       else {
                         $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
@@ -2395,9 +2395,9 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
                 $smartGroupQuery = '';
                 if (!empty($smartGroups)) {
                   $smartGroups = implode(',', $smartGroups);
-                  $smartGroupQuery = " UNION DISTINCT 
-                  SELECT DISTINCT smartgroup_contact.contact_id                                    
-                  FROM civicrm_group_contact_cache smartgroup_contact        
+                  $smartGroupQuery = " UNION DISTINCT
+                  SELECT DISTINCT smartgroup_contact.contact_id
+                  FROM civicrm_group_contact_cache smartgroup_contact
                   WHERE smartgroup_contact.group_id IN ({$smartGroups}) ";
                 }
 
@@ -2407,10 +2407,10 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
                 }
                 $clause = "{$field['dbAlias']} IN (" . implode(', ', $value) . ")";
 
-                return " {$this->_aliases['civicrm_contact']}.id {$sqlOp} ( 
-                          SELECT DISTINCT {$this->_aliases['civicrm_group']}.contact_id 
+                return " {$this->_aliases['civicrm_contact']}.id {$sqlOp} (
+                          SELECT DISTINCT {$this->_aliases['civicrm_group']}.contact_id
                           FROM civicrm_group_contact {$this->_aliases['civicrm_group']}
-                          WHERE {$clause} AND {$this->_aliases['civicrm_group']}.status = 'Added' 
+                          WHERE {$clause} AND {$this->_aliases['civicrm_group']}.status = 'Added'
                           {$smartGroupQuery} ) ";
               }
 
@@ -2424,8 +2424,8 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
                 }
                 $clause = "{$field['dbAlias']} IN (" . implode(', ', $value) . ")";
 
-                return " {$this->_aliases['civicrm_contact']}.id {$sqlOp} ( 
-                          SELECT DISTINCT {$this->_aliases['civicrm_tag']}.entity_id 
+                return " {$this->_aliases['civicrm_contact']}.id {$sqlOp} (
+                          SELECT DISTINCT {$this->_aliases['civicrm_tag']}.entity_id
                           FROM civicrm_entity_tag {$this->_aliases['civicrm_tag']}
                           WHERE entity_table = 'civicrm_contact' AND {$clause} ) ";
               }
@@ -2444,13 +2444,13 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
                 }
 
                 $sql = "
-SELECT cg.table_name, cg.title, cg.extends, cf.id as cf_id, cf.label, 
+SELECT cg.table_name, cg.title, cg.extends, cf.id as cf_id, cf.label,
        cf.column_name, cf.data_type, cf.html_type, cf.option_group_id, cf.time_format
-FROM   civicrm_custom_group cg 
+FROM   civicrm_custom_group cg
 INNER  JOIN civicrm_custom_field cf ON cg.id = cf.custom_group_id
-WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND 
-      cg.is_active = 1 AND 
-      cf.is_active = 1 AND 
+WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
+      cg.is_active = 1 AND
+      cf.is_active = 1 AND
       cf.is_searchable = 1
 ORDER BY cg.weight, cf.weight";
                 $customDAO = CRM_Core_DAO::executeQuery($sql);
@@ -2622,7 +2622,7 @@ ORDER BY cg.weight, cf.weight";
                       continue;
                     }
 
-                    $this->_from .= " 
+                    $this->_from .= "
 LEFT JOIN $table {$this->_aliases[$table]} ON {$this->_aliases[$table]}.entity_id = {$this->_aliases[$extendsTable]}.id";
                     // handle for ContactReference
                     if (array_key_exists('fields', $prop)) {
@@ -3024,8 +3024,8 @@ LEFT JOIN civicrm_contact {$field['alias']} ON {$field['alias']}.id = {$this->_a
                   $this->isTableSelected('civicrm_address')
                 ) {
                   $this->_from .= "
-                 LEFT JOIN civicrm_address {$this->_aliases['civicrm_address']} 
-                           ON ({$this->_aliases['civicrm_contact']}.id = 
+                 LEFT JOIN civicrm_address {$this->_aliases['civicrm_address']}
+                           ON ({$this->_aliases['civicrm_contact']}.id =
                                {$this->_aliases['civicrm_address']}.contact_id) AND
                                {$this->_aliases['civicrm_address']}.is_primary = 1\n";
                 }
