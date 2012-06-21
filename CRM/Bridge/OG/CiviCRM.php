@@ -100,14 +100,10 @@ class CRM_Bridge_OG_CiviCRM {
       $drupalID = CRM_Core_BAO_UFMatch::getUFId($contactID);
       if ($drupalID) {
         if ($op == 'add') {
-          $group_membership = og_membership_create($ogID, 'user', $drupalID, array('is_active' => 1));
-          $group_membership->save();
+          og_group($ogID, array('entity' => user_load($drupalID)));
         }
         else {
-          $membership = og_get_group_membership($ogID, 'user', $drupalID);
-          if ($membership) {
-            og_membership_delete($membership->id);
-          }
+          og_ungroup($ogID, 'user', user_load($drupalID));
         }
       }
     }
