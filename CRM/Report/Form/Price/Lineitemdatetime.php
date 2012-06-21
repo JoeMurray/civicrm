@@ -34,11 +34,11 @@
  *
  */
 
-require_once 'CRM/Report/Form.php';
+require_once 'CRM/Report/Form/Extended.php';
 require_once 'CRM/Contribute/PseudoConstant.php';
 require_once 'CRM/Report/Form/Price/Lineitem.php';
 
-class CRM_Report_Form_Price_Lineitemdatetime extends CRM_Report_Form_Price_Lineitem {
+class CRM_Report_Form_Price_Lineitemdatetime extends CRM_Report_Form_Extended {
     protected $_addressField = false;
 
     protected $_emailField   = false;
@@ -54,16 +54,14 @@ class CRM_Report_Form_Price_Lineitemdatetime extends CRM_Report_Form_Price_Linei
     function __construct() {
 
         $this->_columns = $this->getContactColumns()
-   
-                        + $this->getLineItemColumns()    
-                        + $this->getPriceFieldValueColumns()
-                        + $this->getPriceFieldColumns()
-                        + $this->getParticipantColumns()
                         + $this->getEventColumns()
-                        + $this->getContributionColumns()  
-     
-                        ;
-
+                        + $this->getContributionColumns()
+                        + $this->getParticipantColumns()
+                        + $this->getPriceFieldColumns()
+                        + $this->getPriceFieldValueColumns()
+                        + $this->getLineItemColumns()
+ ;
+dpm($this->_columns);
         parent::__construct( );
     }
 
