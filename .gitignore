@@ -5,4 +5,4 @@ drupal
 *.afm.php
 packages/dompdf/lib/fonts/log.htm
 .svn
-
+.DS_Store
