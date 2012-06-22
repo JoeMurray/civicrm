@@ -67,7 +67,6 @@ class CRM_Report_Form_Price_Lineitem extends CRM_Report_Form_Extended {
 
                         ;
       }
-      dpm($this->_columns);
         parent::__construct( );
     }
 
