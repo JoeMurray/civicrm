@@ -40,6 +40,32 @@ require_once 'CRM/Core/DAO/Email.php';
  */
 class CRM_Core_BAO_Email extends CRM_Core_DAO_Email {
 
+  static function create($params) {
+      require_once 'CRM/Utils/Hook.php';
+    if (!empty($params['d'])) {
+      CRM_Utils_Hook::pre('edit', 'Email', $params['id'], $params);
+    }
+    else {
+      CRM_Utils_Hook::pre('create', 'Email', NULL, $params);
+      $isEdit = FALSE;
+    }
+    if (is_integer(CRM_Utils_Array::value('is_primary', $params)) ||
+      // if id is set & is_primary isn't we can assume no change
+      empty($params['id'])
+    ) {
+      require_once 'CRM/Core/BAO/Block.php';
+      CRM_Core_BAO_Block::handlePrimary($params, get_class());
+    }
+    $email = CRM_Core_BAO_Email::add($params);
+
+    if (CRM_Utils_Array::value('id', $params)) {
+      CRM_Utils_Hook::post('edit', 'Email', $email->id, $email);
+    }
+    else {
+      CRM_Utils_Hook::post('create', 'Email', $email->id, $email);
+    }
+    return $email;
+  }
   /**
    * takes an associative array and adds email
    *
@@ -62,9 +88,9 @@ class CRM_Core_BAO_Email extends CRM_Core_DAO_Email {
     // (only 1 email address can have is_bulkmail = true)
     if ($email->is_bulkmail != 'null' && $params['contact_id']) {
       $sql = "
-UPDATE civicrm_email 
+UPDATE civicrm_email
 SET is_bulkmail = 0
-WHERE 
+WHERE
 contact_id = {$params['contact_id']}";
       CRM_Core_DAO::executeQuery($sql);
     }
@@ -160,7 +186,7 @@ ORDER BY
     $entityTable = $entityElements['entity_table'];
 
 
-    $sql = " SELECT email, ltype.name as locationType, e.is_primary as is_primary, e.on_hold as on_hold,e.id as email_id, e.location_type_id as locationTypeId 
+    $sql = " SELECT email, ltype.name as locationType, e.is_primary as is_primary, e.on_hold as on_hold,e.id as email_id, e.location_type_id as locationTypeId
 FROM civicrm_loc_block loc, civicrm_email e, civicrm_location_type ltype, {$entityTable} ev
 WHERE ev.id = %1
 AND   loc.id = ev.loc_block_id

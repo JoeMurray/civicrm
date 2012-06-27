@@ -39,7 +39,33 @@ require_once 'CRM/Core/DAO/Phone.php';
  * Class contains functions for phone
  */
 class CRM_Core_BAO_Phone extends CRM_Core_DAO_Phone {
+  static
+  function create($params) {
+    require_once 'CRM/Utils/Hook.php';
+    if (!empty($params['contact_id'])) {
+      CRM_Utils_Hook::pre('edit', 'Phone', $params['id'], $params);
+    }
+    else {
+      CRM_Utils_Hook::pre('create', 'Phone', NULL, $params);
+      $isEdit = FALSE;
+    }
+    if (is_integer(CRM_Utils_Array::value('is_primary', $params)) ||
+      // if id is set & is_primary isn't we can assume no change
+      empty($params['id'])
+    ) {
+      require_once 'CRM/Core/BAO/Block.php';
+      CRM_Core_BAO_Block::handlePrimary($params, get_class());
+    }
+    $phone = self::add($params);
 
+    if (CRM_Utils_Array::value('id', $params)) {
+      CRM_Utils_Hook::post('edit', 'Phone', $phone->id, $phone);
+    }
+    else {
+      CRM_Utils_Hook::post('create', 'phone', $phone->id, $phone);
+    }
+    return $phone;
+  }
   /**
    * takes an associative array and adds phone
    *
