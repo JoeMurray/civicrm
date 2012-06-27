@@ -389,5 +389,65 @@ class CRM_Core_BAO_Block {
 
     $block->delete();
   }
+
+  public static function handlePrimary(&$params, $class) {
+    switch ($class) {
+      case 'CRM_Core_BAO_Phone':
+        $table = 'civicrm_phone';
+        break;
+
+      case 'CRM_Core_BAO_Email':
+        $table = 'civicrm_email';
+        break;
+
+      case 'CRM_Core_BAO_Address':
+        $table = 'civicrm_address';
+        break;
+    }
+    // if id is set & we don't have contact_id we need to retrieve it
+    $contactId = null;
+    if (!empty($params['id']) && empty($params['contact_id'])) {
+      $entity = new $class();
+      $entity->id = $params['id'];
+      $entity->find(TRUE);
+      $contactId = $entity->contact_id;
+    }
+    elseif (CRM_Utils_Array::value('contact_id', $params)) {
+      $contactId = $params['contact_id'];
+    }
+
+    if ( !$contactId ) {
+      // entity not associated with contact so concept of is_primary not relevant
+      return;
+    }
+
+    // if params is_primary then set all others to not be primary & exit out
+    if (CRM_Utils_Array::value('is_primary', $params)) {
+      $sql = "UPDATE $table SET is_primary = 0 WHERE contact_id = %1";
+      CRM_Core_DAO::executeQuery($sql, array(1 => array($contactId, 'Integer')));
+      return;
+    }
+
+    //Check what other emails exist for the contact
+    $existingEntities = new $class();
+    $existingEntities->contact_id = $contactId;
+    $existingEntities->orderBy('is_primary DESC');
+    if (!$existingEntities->find(TRUE)) {
+      // ie. if  no others is set to be primary then this has to be primary set to 1 so change
+      $params['is_primary'] = 1;
+      return;
+    }
+    else {
+      // so at this point we are only dealing with ones explicity setting is_primary to 0
+      // since we have reverse sorted by email we can either set the first one to
+      // primary or return if is already is
+      if ($existingEntities->is_primary == 1) {
+        return;
+      }
+      $existingEntities->is_primary = 1;
+      $existingEntities->save();
+    }
+  }
+
 }
 
