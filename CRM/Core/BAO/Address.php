@@ -167,6 +167,11 @@ class CRM_Core_BAO_Address extends CRM_Core_DAO_Address {
       $isEdit = FALSE;
     }
 
+    // if id is set & is_primary isn't we can assume no change
+    if (is_numeric(CRM_Utils_Array::value('is_primary', $params)) || empty($params['id'])) {
+      require_once 'CRM/Core/BAO/Block.php';
+      CRM_Core_BAO_Block::handlePrimary($params, get_class());
+    }
     $config = CRM_Core_Config::singleton();
     $address->copyValues($params);
 
@@ -628,7 +633,7 @@ class CRM_Core_BAO_Address extends CRM_Core_DAO_Address {
 
     $query = "
 SELECT civicrm_address.id as address_id, civicrm_address.location_type_id as location_type_id
-FROM civicrm_contact, civicrm_address 
+FROM civicrm_contact, civicrm_address
 WHERE civicrm_address.contact_id = civicrm_contact.id AND civicrm_contact.id = %1
 ORDER BY civicrm_address.is_primary DESC, address_id ASC";
     $params = array(1 => array($id, 'Integer'));
@@ -667,7 +672,7 @@ ORDER BY civicrm_address.is_primary DESC, address_id ASC";
     $entityTable = $entityElements['entity_table'];
 
     $sql = "
-SELECT civicrm_address.id as address_id    
+SELECT civicrm_address.id as address_id
 FROM civicrm_loc_block loc, civicrm_location_type ltype, civicrm_address, {$entityTable} ev
 WHERE ev.id = %1
   AND loc.id = ev.loc_block_id
@@ -965,8 +970,8 @@ ORDER BY civicrm_address.is_primary DESC, civicrm_address.location_type_id DESC,
     $query = "
 SELECT is_primary,
        location_type_id
-  FROM civicrm_address 
- WHERE contact_id = %1 
+  FROM civicrm_address
+ WHERE contact_id = %1
    AND master_id IS NOT NULL";
 
     $dao = CRM_Core_DAO::executeQuery($query, array(1 => array($contactId, 'Positive')));
@@ -1078,7 +1083,7 @@ SELECT is_primary,
     // get the contact id and contact type of shared contact
     // check the contact type of shared contact, return if it is of type Individual
 
-    $query = 'SELECT cc.id, cc.contact_type 
+    $query = 'SELECT cc.id, cc.contact_type
                  FROM civicrm_contact cc INNER JOIN civicrm_address ca ON cc.id = ca.contact_id
                  WHERE ca.id = %1';
 
@@ -1141,16 +1146,16 @@ SELECT is_primary,
     // check if address that is being deleted has any shared
     if ($addressId) {
       $entityId = $addressId;
-      $query = 'SELECT cc.id, cc.display_name 
+      $query = 'SELECT cc.id, cc.display_name
                  FROM civicrm_contact cc INNER JOIN civicrm_address ca ON cc.id = ca.contact_id
                  WHERE ca.master_id = %1';
     }
     else {
       $entityId = $contactId;
-      $query = 'SELECT cc.id, cc.display_name 
-                FROM civicrm_address ca1 
+      $query = 'SELECT cc.id, cc.display_name
+                FROM civicrm_address ca1
                     INNER JOIN civicrm_address ca2 ON ca1.id = ca2.master_id
-                    INNER JOIN civicrm_contact cc  ON ca2.contact_id = cc.id 
+                    INNER JOIN civicrm_contact cc  ON ca2.contact_id = cc.id
                 WHERE ca1.contact_id = %1';
     }
 
