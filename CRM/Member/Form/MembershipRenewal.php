@@ -53,6 +53,12 @@ class CRM_Member_Form_MembershipRenewal extends CRM_Member_Form {
   */
   protected $_contributorDisplayName;
 
+  /*
+   * context would be set to standalone if the contact is use is being selected from
+   * the form rathe than the URL
+   */
+  protected $_context;
+
   public function preProcess() {
     //custom data related code
     $this->_cdType = CRM_Utils_Array::value('type', $_GET);
@@ -714,7 +720,7 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
         $contributionParams[$f] = CRM_Utils_Array::value($f, $formValues);
       }
         //CRM-10223 - allow contribution to be recorded against different contact
-      if(CRM_Utils_Array::value(1, $formValues[contribution_contact_select_id])){
+      if(CRM_Utils_Array::value(1, $formValues['contribution_contact_select_id'])){
         $contributionParams['contact_id'] = $this->_params['contribution_contact_select_id'][1];
         if(CRM_Utils_Array::value('honor_type_id', $this->_params)){
           $contributionParams['honor_type_id'] = $this->_params['honor_type_id'];
