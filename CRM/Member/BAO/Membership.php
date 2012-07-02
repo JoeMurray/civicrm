@@ -308,7 +308,7 @@ class CRM_Member_BAO_Membership extends CRM_Member_DAO_Membership {
       }
       require_once 'CRM/Contribute/BAO/Contribution.php';
       $contribution = CRM_Contribute_BAO_Contribution::create($contributionParams, $ids);
-
+      $params['contribution'] = $contribution;
       if (CRM_Utils_Array::value('processPriceSet', $params) &&
         !empty($params['lineItems'])
       ) {
