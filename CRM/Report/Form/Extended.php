@@ -417,6 +417,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           ),
           'event_type_id' => array('title' => ts('Event Type'),
             'required' => TRUE,
+             'alter_display' => 'alterEventType',
           ),
           'fee_label' => array('title' => ts('Fee Label')),
           'event_start_date' => array('title' => ts('Event Start Date'),
@@ -446,6 +447,11 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
             'default_weight' => '2',
             'default_order' => 'ASC',
           ),
+         'group_bys' => array(
+          'event_type_id' => array(
+            'title' => ts('Event Type'),
+          ),
+        ),
         ),
       ),
     );
@@ -1161,10 +1167,12 @@ WHERE 	line_item_civireport.id IS NOT NULL
     * Retrieve text for contribution type from pseudoconstant
     */
   function alterNickName($value, &$row) {
-    if(empty($row['civicrm_contact_id']))
+    if(empty($row['civicrm_contact_id'])){
+      return;
+    }
     $contactID = $row['civicrm_contact_id'];
-    return "<div id=contact-{$contactID} class='crm-editable'>
-           <div class='crm-editable crmf-nick_name crm-editable-enabled'>
+    return "<div id=contact-{$contactID} class='crm-entity'>
+           <div class='crm-editable crmf-nick_name crm-editable-enabled crmapiaction-create'>
            " . $value . "</div>";
   }
   /*

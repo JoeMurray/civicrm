@@ -53,9 +53,15 @@
             $().crmNotification ("FATAL crm-editable: Couldn't get the field name to modify. You need to set crmf-{field_name}",'notification',this);
             return false;
           }
-          params['field']=fieldName;
-          params['value']=checked?'1':'0';//seems that the ajax backend gets lost with boolean
-
+          var apiaction = this.className.match(/crmapiaction-(\S*)/)[1];
+          if(apiaction){
+            params[fieldName] = checked?'1':'0';//seems that the ajax backend gets lost with boolean
+          }
+          else{
+           apiaction = 'setvalue';
+           params['field']=fieldName;
+           params['value']=checked?'1':'0';//seems that the ajax backend gets lost with boolean
+         }
           if (id) {
              var e=id.match(/(\S*)-(\S*)/);
              if (!e) 
@@ -66,8 +72,9 @@
             $().crmNotification ("FATAL crm-editable: Couldn't get the entity id. You need to set class='crm-entity' id='{entityName}-{id}'",'notification',this);
             return false;
           }
+
           //$().crmAPI.call(this,entity,'create',params,{ create is still too buggy & perf
-          $().crmAPI.call(this,entity,'setvalue',params,{
+          $().crmAPI.call(this,entity,apiaction,params,{
             error: function (data) {
               editableSettings.error.call(this,entity,fieldName,checked,data);
             },
