@@ -1492,6 +1492,9 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
           }
           $membershipParams = array_merge($params, $membershipTypeValues[$memType]);
           $membership = CRM_Member_BAO_Membership::create($membershipParams, $ids);
+          if(!empty($membershipParams['contribution']) && isset($membershipParams['contribution']->id)){
+            $contribution = $membershipParams['contribution'];
+          }
           $createdMemberships[$memType] = $membership;
           $count++;
         }
