@@ -539,6 +539,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           ),
           'nick_name' => array(
             'title' => ts('Nick Name'),
+            'alter_display' => 'alterNickName',
           ),
         ),
         'filters' => array(
@@ -1156,7 +1157,16 @@ WHERE 	line_item_civireport.id IS NOT NULL
                        ({$this->_aliases['civicrm_event']}.is_template IS NULL OR
                         {$this->_aliases['civicrm_event']}.is_template = 0)";
   }
-
+  /*
+    * Retrieve text for contribution type from pseudoconstant
+    */
+  function alterNickName($value, &$row) {
+    if(empty($row['civicrm_contact_id']))
+    $contactID = $row['civicrm_contact_id'];
+    return "<div id=contact-{$contactID} class='crm-editable'>
+           <div class='crm-editable crmf-nick_name crm-editable-enabled'>
+           " . $value . "</div>";
+  }
   /*
     * Retrieve text for contribution type from pseudoconstant
     */
