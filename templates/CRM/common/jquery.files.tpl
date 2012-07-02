@@ -23,7 +23,7 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
-{* 
+{*
  * If you MODIFY this file, please make sure you also modify jquery.tpl.
  * We will unify the two files in a future release
  *}
@@ -72,7 +72,9 @@ packages/jquery/plugins/jquery.ui.datepicker.validation.pack.js
 packages/jquery/plugins/jquery-fieldselection.js
 
 js/rest.js
-
+packages/jquery/plugins/jquery.jeditable.mini.js
+packages/jquery/plugins/jquery.mustache.js
+js/jquery/jquery.crmeditable.js
 js/jquery/jquery.crmaccordions.js
 js/jquery/jquery.crmasmselect.js
 js/jquery/jquery.crmtooltip.js
