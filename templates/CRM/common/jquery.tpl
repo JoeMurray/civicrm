@@ -23,7 +23,7 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
-{* 
+{*
  * If you MODIFY this file, please make sure you also modify jquery.files.tpl.
  * Cannot get rid of this since we use it for joomla, standalone, print
  * html profile etc
@@ -34,6 +34,8 @@
 
 <script type="text/javascript" src="{$config->resourceBase}packages/jquery/plugins/jquery.autocomplete.js"></script>
 <style type="text/css">@import url("{$config->resourceBase}packages/jquery/css/jquery.autocomplete.css");</style>
+<script type="text/javascript" src="{$config->resourceBase}packages/jquery/plugins/jquery.jeditable.mini.js"></script>
+<script type="text/javascript" src="{$config->resourceBase}packages/jquery/plugins/jquery.mustache.js"></script>
 
 <script type="text/javascript" src="{$config->resourceBase}packages/jquery/plugins/jstree/jquery.jstree.js"></script>
 <style type="text/css">@import url("{$config->resourceBase}packages/jquery/plugins/jstree/themes/default/jstree.css");</style>
@@ -77,6 +79,7 @@
 
 <script type="text/javascript" src="{$config->resourceBase}js/rest.js"></script>
 
+<script type="text/javascript" src="{$config->resourceBase}js/jquery/jquery.crmeditable.js"></script>
 <script type="text/javascript" src="{$config->resourceBase}js/jquery/jquery.crmaccordions.js"></script>
 <script type="text/javascript" src="{$config->resourceBase}js/jquery/jquery.crmasmselect.js"></script>
 <script type="text/javascript" src="{$config->resourceBase}js/jquery/jquery.crmtooltip.js"></script>
