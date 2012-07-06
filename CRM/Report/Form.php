@@ -1726,7 +1726,7 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
               $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
               $fromTime = CRM_Utils_Array::value("{$fieldName}_from_time", $this->_params);
               $toTime   = CRM_Utils_Array::value("{$fieldName}_to_time", $this->_params);
-              $clause   = $this->dateClause($field['name'], $relative, $from, $to, $field['type'], $fromTime, $toTime);
+              $clause   = $this->dateClause($field['dbAlias'], $relative, $from, $to, $field['type'], $fromTime, $toTime);
           }
 
                       if (!empty($clause)) {
