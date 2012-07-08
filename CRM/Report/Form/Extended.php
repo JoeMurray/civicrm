@@ -429,7 +429,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
         ),
         'grouping' => 'event-fields',
         'filters' => array(
-          'eid' => array(
+          'event_type_id' => array(
             'name' => 'event_type_id',
             'title' => ts('Event Type'),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
@@ -447,11 +447,12 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
             'default_weight' => '2',
             'default_order' => 'ASC',
           ),
+          ),
          'group_bys' => array(
           'event_type_id' => array(
             'title' => ts('Event Type'),
           ),
-        ),
+
         ),
       ),
     );
