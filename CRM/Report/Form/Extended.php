@@ -417,6 +417,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           ),
           'event_type_id' => array('title' => ts('Event Type'),
             'required' => TRUE,
+             'alter_display' => 'alterEventType',
           ),
           'fee_label' => array('title' => ts('Fee Label')),
           'event_start_date' => array('title' => ts('Event Start Date'),
@@ -446,6 +447,11 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
             'default_weight' => '2',
             'default_order' => 'ASC',
           ),
+         'group_bys' => array(
+          'event_type_id' => array(
+            'title' => ts('Event Type'),
+          ),
+        ),
         ),
       ),
     );
@@ -539,6 +545,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           ),
           'nick_name' => array(
             'title' => ts('Nick Name'),
+            'alter_display' => 'alterNickName',
           ),
         ),
         'filters' => array(
@@ -562,90 +569,76 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
       ),
     );
   }
+
   function getCaseColumns() {
     return array(
-
       'civicrm_case' => array(
-
         'dao' => 'CRM_Case_DAO_Case',
-        'alias' => 'case',
         'fields' => array(
-
           'id' => array(
-
             'title' => ts('Case ID'),
             'required' => false
           ),
           'subject' => array(
-
             'title' => ts('Case Subject'),
             'default' => true
           ),
           'status_id' => array(
-
             'title' => ts('Status'),
             'default' => true
           ),
           'case_type_id' => array(
-
             'title' => ts('Case Type'),
             'default' => true
           ),
-          'start_date' => array(
-
-            'title' => ts('Start Date'),
+          'case_start_date' => array(
+            'title' => ts('Case Start Date'),
+            'name' => 'start_date',
             'default' => true
           ),
-          'end_date' => array(
-
-            'title' => ts('End Date'),
+          'case_end_date' => array(
+            'title' => ts('Case End Date'),
+            'name' => 'end_date',
             'default' => true
           ),
-          'duration' => array(
-
+          'case_duration' => array(
+            'name' => 'duration',
             'title' => ts('Duration (Days)'),
             'default' => false
           ),
-          'is_deleted' => array(
-
-            'title' => ts('Deleted?'),
+          'case_is_deleted' => array(
+            'name' => 'is_deleted',
+            'title' => ts('Case Deleted?'),
             'default' => false,
             'type' => CRM_Utils_Type::T_INT
           )
         ),
         'filters' => array(
-
           'case_start_date' => array(
-
-            'title' => ts('Start Date'),
+            'title' => ts('Case Start Date'),
             'operatorType' => CRM_Report_Form::OP_DATE,
             'type' => CRM_Utils_Type::T_DATE,
             'name' => 'start_date',
-            'alias' => 'case'
           ),
           'case_end_date' => array(
-
-            'title' => ts('End Date'),
+            'title' => ts('Case End Date'),
             'operatorType' => CRM_Report_Form::OP_DATE,
             'type' => CRM_Utils_Type::T_DATE,
             'name' => 'end_date'
           ),
           'case_type_id' => array(
-
             'title' => ts('Case Type'),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
             'options' => $this->case_types
           ),
           'case_status_id' => array(
-
-            'title' => ts('Status'),
+            'title' => ts('Case Status'),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
             'options' => $this->case_statuses,
             'name' => 'status_id'
           ),
           'case_is_deleted' => array(
-
-            'title' => ts('Deleted?'),
+            'title' => ts('Case Deleted?'),
             'type' => CRM_Report_Form::OP_INT,
             'operatorType' => CRM_Report_Form::OP_SELECT,
             'options' => $this->deleted_labels,
@@ -1156,7 +1149,18 @@ WHERE 	line_item_civireport.id IS NOT NULL
                        ({$this->_aliases['civicrm_event']}.is_template IS NULL OR
                         {$this->_aliases['civicrm_event']}.is_template = 0)";
   }
-
+  /*
+    * Retrieve text for contribution type from pseudoconstant
+    */
+  function alterNickName($value, &$row) {
+    if(empty($row['civicrm_contact_id'])){
+      return;
+    }
+    $contactID = $row['civicrm_contact_id'];
+    return "<div id=contact-{$contactID} class='crm-entity'>
+           <div class='crm-editable crmf-nick_name crm-editable-enabled crmapiaction-create'>
+           " . $value . "</div>";
+  }
   /*
     * Retrieve text for contribution type from pseudoconstant
     */

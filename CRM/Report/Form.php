@@ -1201,7 +1201,7 @@ class CRM_Report_Form extends CRM_Core_Form {
   }
 
   function dateClause($fieldName,
-    $relative, $from, $to, $type = NULL
+    $relative, $from, $to, $type = NULL, $fromTime = NULL, $toTime = NULL
   ) {
     $clauses = array();
     if (in_array($relative, array_keys($this->getOperationPair(CRM_Report_FORM::OP_DATE)))) {
@@ -1209,7 +1209,7 @@ class CRM_Report_Form extends CRM_Core_Form {
       return "( {$fieldName} {$sqlOP} )";
     }
 
-    list($from, $to) = self::getFromTo($relative, $from, $to);
+    list($from, $to) = self::getFromTo($relative, $from, $to, $fromTime, $toTime);
 
     if ($from) {
       $from = ($type == CRM_Utils_Type::T_DATE) ? substr($from, 0, 8) : $from;
@@ -1254,20 +1254,20 @@ class CRM_Report_Form extends CRM_Core_Form {
   }
 
   static
-  function getFromTo($relative, $from, $to) {
-    require_once 'CRM/Utils/Date.php';
+    function getFromTo($relative, $from, $to, $fromtime = NULL, $totime = NULL) {
+    if (empty($totime)) {
+      $totime = '235959';
+    }
     //FIX ME not working for relative
     if ($relative) {
-      list($term, $unit) = explode('.', $relative);
+      list($term, $unit) = CRM_Utils_System::explode('.', $relative, 2);
       $dateRange = CRM_Utils_Date::relativeToAbsolute($term, $unit);
       $from = $dateRange['from'];
       //Take only Date Part, Sometime Time part is also present in 'to'
       $to = substr($dateRange['to'], 0, 8);
     }
-
-    $from = CRM_Utils_Date::processDate($from);
-    $to = CRM_Utils_Date::processDate($to, '235959');
-
+    $from = CRM_Utils_Date::processDate($from, $fromtime);
+    $to = CRM_Utils_Date::processDate($to, $totime);
     return array($from, $to);
   }
 
@@ -1720,24 +1720,14 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
                   if (array_key_exists('filters', $table)) {
                     foreach ($table['filters'] as $fieldName => $field) {
                       $clause = NULL;
-                      if (CRM_Utils_Array::value('type', $field) & CRM_Utils_Type::T_DATE) {
-                        $relative = CRM_Utils_Array::value("{$fieldName}_relative", $this->_params);
-                        $from     = CRM_Utils_Array::value("{$fieldName}_from", $this->_params);
-                        $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
-
-                        $clause = $this->dateClause($field['dbAlias'], $relative, $from, $to, $field['type']);
-                      }
-                      else {
-                        $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
-                        if ($op) {
-                          $clause = $this->whereClause($field,
-                            $op,
-                            CRM_Utils_Array::value("{$fieldName}_value", $this->_params),
-                            CRM_Utils_Array::value("{$fieldName}_min", $this->_params),
-                            CRM_Utils_Array::value("{$fieldName}_max", $this->_params)
-                          );
-                        }
-                      }
+          if (CRM_Utils_Array::value('type', $field) & CRM_Utils_Type::T_DATE) {
+              $relative = CRM_Utils_Array::value("{$fieldName}_relative", $this->_params);
+              $from     = CRM_Utils_Array::value("{$fieldName}_from", $this->_params);
+              $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
+              $fromTime = CRM_Utils_Array::value("{$fieldName}_from_time", $this->_params);
+              $toTime   = CRM_Utils_Array::value("{$fieldName}_to_time", $this->_params);
+              $clause   = $this->dateClause($field['dbAlias'], $relative, $from, $to, $field['type'], $fromTime, $toTime);
+          }
 
                       if (!empty($clause)) {
                         if (CRM_Utils_Array::value('having', $field)) {
