@@ -556,7 +556,7 @@ class CRM_Contribute_BAO_Query {
 
       case 'contribution_status':
         $from = " $side JOIN civicrm_option_group option_group_contribution_status ON (option_group_contribution_status.name = 'contribution_status')";
-        $from .= " $side JOIN civicrm_option_value contribution_status ON (civicrm_contribution.contribution_status_id = contribution_status.value 
+        $from .= " $side JOIN civicrm_option_value contribution_status ON (civicrm_contribution.contribution_status_id = contribution_status.value
                                AND option_group_contribution_status.id = contribution_status.option_group_id ) ";
         break;
 
@@ -603,15 +603,12 @@ class CRM_Contribute_BAO_Query {
     $properties = NULL;
     if ($mode & CRM_Contact_BAO_Query::MODE_CONTRIBUTE) {
       $properties = array(
-        'contact_type' => 1,
-        'contact_sub_type' => 1,
         'sort_name' => 1,
         'display_name' => 1,
         'contribution_type' => 1,
         'contribution_source' => 1,
         'receive_date' => 1,
         'thankyou_date' => 1,
-        'cancel_date' => 1,
         'total_amount' => 1,
         'accounting_code' => 1,
         'payment_instrument' => 1,
@@ -627,19 +624,12 @@ class CRM_Contribute_BAO_Query {
         'receipt_date' => 1,
         'thankyou_date' => 1,
         'product_name' => 1,
-        'sku' => 1,
-        'product_option' => 1,
         'fulfilled_date' => 1,
         'contribution_start_date' => 1,
         'contribution_end_date' => 1,
-        'is_test' => 1,
         'is_pay_later' => 1,
         'contribution_status' => 1,
         'contribution_status_id' => 1,
-        'contribution_recur_id' => 1,
-        'amount_level' => 1,
-        'contribution_note' => 1,
-        'contribution_campaign_id' => 1,
       );
 
       if ($includeCustomFields) {
