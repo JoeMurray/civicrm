@@ -1728,7 +1728,17 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
               $toTime   = CRM_Utils_Array::value("{$fieldName}_to_time", $this->_params);
               $clause   = $this->dateClause($field['dbAlias'], $relative, $from, $to, $field['type'], $fromTime, $toTime);
           }
-
+          else {
+            $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
+            if ($op) {
+              $clause = $this->whereClause($field,
+                $op,
+                CRM_Utils_Array::value("{$fieldName}_value", $this->_params),
+                CRM_Utils_Array::value("{$fieldName}_min", $this->_params),
+                CRM_Utils_Array::value("{$fieldName}_max", $this->_params)
+              );
+            }
+         }
                       if (!empty($clause)) {
                         if (CRM_Utils_Array::value('having', $field)) {
                           $havingClauses[] = $clause;
