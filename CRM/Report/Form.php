@@ -1892,55 +1892,67 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
                 }
               }
 
-              function orderBy() {
-                $this->_orderBy  = "";
-                $orderBys        = array();
-                $this->_sections = array();
+  function orderBy() {
+    $this->_orderBy  = "";
+    $this->_sections = array();
+    $this->storeOrderByArray();
+    if(!empty($this->_orderByArray) && !$this->_rollup == 'WITH ROLLUP'){
+      $this->_orderBy = "ORDER BY " . implode(', ', $this->_orderByArray);
+    }
+    $this->assign('sections', $this->_sections);
+  }
+  /*
+   * In some cases other functions want to know which fields are selected for ordering by
+   * Separating this into a separate function allows it to be called separately from constructing
+   * the order by clause
+   */
+  function storeOrderByArray() {
+    $orderBys = array();
 
-                if (CRM_Utils_Array::value('order_bys', $this->_params) &&
-                  is_array($this->_params['order_bys']) &&
-                  !empty($this->_params['order_bys'])
-                ) {
+    if (CRM_Utils_Array::value('order_bys', $this->_params) &&
+      is_array($this->_params['order_bys']) &&
+      !empty($this->_params['order_bys'])
+    ) {
 
-                  // Proces order_bys in user-specified order
-                  foreach ($this->_params['order_bys'] as $orderBy) {
-                    $orderByField = array();
-                    foreach ($this->_columns as $tableName => $table) {
-                      if (array_key_exists('order_bys', $table)) {
-                        // For DAO columns defined in $this->_columns
-                        $fields = $table['order_bys'];
-                      }
-                      elseif (array_key_exists('extends', $table)) {
-                        // For custom fields referenced in $this->_customGroupExtends
-                        $fields = $table['fields'];
-                      }
-                      if (!empty($fields) && is_array($fields)) {
-                        foreach ($fields as $fieldName => $field) {
-                          if ($fieldName == $orderBy['column']) {
-                            $orderByField = $field;
-                            $orderByField['tplField'] = "{$tableName}_{$fieldName}";
-                            break 2;
-                          }
-                        }
-                      }
-                    }
-
-                    if (!empty($orderByField)) {
-                      $orderBys[] = "{$orderByField['dbAlias']} {$orderBy['order']}";
-
-                      // Record any section headers for assignment to the template
-                      if (CRM_Utils_Array::value('section', $orderBy)) {
-                        $this->_sections[$orderByField['tplField']] = $orderByField;
-                      }
-                    }
-                  }
-                }
-
-                if (!empty($orderBys)) {
-                  $this->_orderBy = "ORDER BY " . implode(', ', $orderBys);
-                }
-                $this->assign('sections', $this->_sections);
+      // Proces order_bys in user-specified order
+      foreach ($this->_params['order_bys'] as $orderBy) {
+        $orderByField = array();
+        foreach ($this->_columns as $tableName => $table) {
+          if (array_key_exists('order_bys', $table)) {
+            // For DAO columns defined in $this->_columns
+            $fields = $table['order_bys'];
+          }
+          elseif (array_key_exists('extends', $table)) {
+            // For custom fields referenced in $this->_customGroupExtends
+            $fields = $table['fields'];
+          }
+          if (!empty($fields) && is_array($fields)) {
+            foreach ($fields as $fieldName => $field) {
+              if ($fieldName == $orderBy['column']) {
+                $orderByField = $field;
+                $orderByField['tplField'] = "{$tableName}_{$fieldName}";
+                break 2;
               }
+            }
+          }
+        }
+
+        if (!empty($orderByField)) {
+          $orderBys[] = "{$orderByField['dbAlias']} {$orderBy['order']}";
+
+          // Record any section headers for assignment to the template
+          if (CRM_Utils_Array::value('section', $orderBy)) {
+            $this->_sections[$orderByField['tplField']] = $orderByField;
+          }
+        }
+      }
+    }
+
+    $this->_orderByArray = $orderBys;
+
+    $this->assign('sections', $this->_sections);
+  }
+
 
               function unselectedSectionColumns() {
                 foreach ($this->_columns as $tableName => $table) {
