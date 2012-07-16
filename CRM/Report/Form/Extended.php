@@ -116,6 +116,11 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
     //THis is all generic functionality which can hopefully go into the parent class
     // it introduces the option of defining an alter display function as part of the column definition
     // @tod tidy up the iteration so it happens in this function
+
+    if(!empty($this->_rollup ) && !empty($this->_groupBysArray)){
+      $this->assignSubTotalLines($rows);
+    }
+    
     list($firstRow) = $rows;
     // no result to alter
     if (empty($firstRow)) {
@@ -146,6 +151,12 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
         }
       }
     }
+  }
+
+  function assignSubTotalLines(&$rows){
+     foreach ($rows as $index => & $row) {
+       $orderFields = array_intersect_key(array_flip($this->_groupBysArray), $row);
+     }
   }
 
   function getLineItemColumns() {
