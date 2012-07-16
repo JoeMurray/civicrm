@@ -214,7 +214,14 @@ class CRM_Report_Form extends CRM_Core_Form {
   public $_select = NULL;
   public $_orderBy = NULL;
   public $_groupBy = NULL;
-
+  /*
+   * Store group bys as an arry for further manipulation if need be
+   */
+  public $_groupByArray = array();
+  /*
+   * Store order bys as an arry for further manipulation if need be
+  */
+  public $_orderByArray = array();
   /**
    *
    */ function __construct() {
@@ -1870,27 +1877,41 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
                 return $sql;
               }
 
-              function groupBy() {
-                $groupBys = array();
-                if (CRM_Utils_Array::value('group_bys', $this->_params) &&
-                  is_array($this->_params['group_bys']) &&
-                  !empty($this->_params['group_bys'])
-                ) {
-                  foreach ($this->_columns as $tableName => $table) {
-                    if (array_key_exists('group_bys', $table)) {
-                      foreach ($table['group_bys'] as $fieldName => $field) {
-                        if (CRM_Utils_Array::value($fieldName, $this->_params['group_bys'])) {
-                          $groupBys[] = $field['dbAlias'];
-                        }
-                      }
-                    }
-                  }
-                }
+  function groupBy() {
+    /*
+     * if rollup has been set then any order bys must be included in the group by not the order by clause
+     * in this case the distinction between the two becomes more about order & formatting the report
+     */
+    $orderString = '';
+    if($this->_rollup == ' WITH ROLLUP'){
+      $this->storeOrderByArray();
+      if(!empty($this->_orderByArray)){
+        $orderString = implode(', ', $this->_orderByArray) . ',';
+        $this->_orderBy = '';
+      }
+    }
+    
+    $groupBys = array();
+    if (CRM_Utils_Array::value('group_bys', $this->_params) &&
+      is_array($this->_params['group_bys']) &&
+      !empty($this->_params['group_bys'])
+    ) {
+      foreach ($this->_columns as $tableName => $table) {
+        if (array_key_exists('group_bys', $table)) {
+          foreach ($table['group_bys'] as $fieldName => $field) {
+            if (CRM_Utils_Array::value($fieldName, $this->_params['group_bys'])) {
+              $groupBys[] = $field['dbAlias'];
+            }
+          }
+        }
+      }
+    }
+    if (!empty($groupBys) || $orderString) {
+      $this->_groupBy = "GROUP BY $orderString " . implode(', ', $groupBys) . $this->_rollup;
+      $this->_groupBysArray = $groupBys;
 
-                if (!empty($groupBys)) {
-                  $this->_groupBy = "GROUP BY " . implode(', ', $groupBys);
-                }
-              }
+    }
+  }
 
   function orderBy() {
     $this->_orderBy  = "";
