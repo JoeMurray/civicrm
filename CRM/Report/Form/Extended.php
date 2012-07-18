@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.2                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2011                                |
+ | Copyright CiviCRM LLC (c) 2004-2012                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2011
+ * @copyright CiviCRM LLC (c) 2004-2012
  * $Id$
  *
  */
@@ -112,9 +112,15 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
 
   function alterDisplay(&$rows) {
     parent::alterDisplay($rows);
+
     //THis is all generic functionality which can hopefully go into the parent class
     // it introduces the option of defining an alter display function as part of the column definition
     // @tod tidy up the iteration so it happens in this function
+
+    if(!empty($this->_rollup ) && !empty($this->_groupBysArray)){
+      $this->assignSubTotalLines($rows);
+    }
+    
     list($firstRow) = $rows;
     // no result to alter
     if (empty($firstRow)) {
@@ -145,6 +151,12 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
         }
       }
     }
+  }
+
+  function assignSubTotalLines(&$rows){
+     foreach ($rows as $index => & $row) {
+       $orderFields = array_intersect_key(array_flip($this->_groupBysArray), $row);
+     }
   }
 
   function getLineItemColumns() {
@@ -190,6 +202,10 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           ),
           'price_field_value_id' =>
           array('title' => ts('Price Field Option'),
+          ),
+          'line_item_id' =>
+          array('title' => ts('Individual Line Item'),
+            'name' => 'id',
           ),
         ),
       ),
@@ -417,7 +433,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           ),
           'event_type_id' => array('title' => ts('Event Type'),
             'required' => TRUE,
-             'alter_display' => 'alterEventType',
+            'alter_display' => 'alterEventType',
           ),
           'fee_label' => array('title' => ts('Fee Label')),
           'event_start_date' => array('title' => ts('Event Start Date'),
@@ -447,12 +463,9 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
             'default_weight' => '2',
             'default_order' => 'ASC',
           ),
-          ),
-         'group_bys' => array(
           'event_type_id' => array(
-            'title' => ts('Event Type'),
+          'title' => ts('Event Type'),
           ),
-
         ),
       ),
     );
@@ -475,6 +488,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           'payment_instrument_id' => array('title' => ts('Payment Instrument'),
             'alter_display' => 'alterPaymentType',
           ),
+          'source' => array('title' => 'Contribution Source'),
           'trxn_id' => NULL,
           'receive_date' => array('default' => TRUE),
           'receipt_date' => NULL,
@@ -513,6 +527,9 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           'payment_instrument_id' =>
           array('title' => ts('Payment Instrument'),
           ),
+         'contribution_type_id' =>
+          array('title' => ts('Contribution Type'),
+          ),
         ),
         'group_bys' =>
         array(
@@ -520,6 +537,11 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           array('title' => ts('Contribution Type')),
           'payment_instrument_id' =>
           array('title' => ts('Payment Instrument')),
+          'contribution_id' =>
+          array('title' => ts('Individual Contribution'),
+            'name' => 'id',
+          ),
+          'source' => array('title' => 'Contribution Source'),
         ),
         'grouping' => 'contribution-fields',
       ),
@@ -650,6 +672,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
       )
     );
   }
+
   /*
      * function for adding address fields to construct function in reports
      * @param array $options Options for the report
@@ -1043,11 +1066,11 @@ LEFT JOIN civicrm_contribution contribution_civireport_direct
                        ON (line_item_civireport.line_total > 0 AND line_item_civireport.entity_id = contribution_civireport_direct.id AND line_item_civireport.entity_table = 'civicrm_contribution')
 
 
-WHERE 	contribution_civireport_direct.id IS NOT NULL
+WHERE  contribution_civireport_direct.id IS NOT NULL
 
 UNION SELECT line_item_civireport.id as lid, contribution_civireport.*
-			FROM civicrm_line_item line_item_civireport
-			LEFT JOIN civicrm_participant participant_civireport
+  FROM civicrm_line_item line_item_civireport
+  LEFT JOIN civicrm_participant participant_civireport
                           ON (line_item_civireport.line_total > 0 AND line_item_civireport.entity_id = participant_civireport.id AND line_item_civireport.entity_table = 'civicrm_participant')
 
 LEFT JOIN civicrm_participant_payment pp
@@ -1056,8 +1079,8 @@ LEFT JOIN civicrm_participant_payment pp
                           ON pp.contribution_id = contribution_civireport.id
 
 UNION SELECT line_item_civireport.id as lid,contribution_civireport.*
-			FROM civicrm_line_item line_item_civireport
-			LEFT JOIN civicrm_membership membership_civireport
+  FROM civicrm_line_item line_item_civireport
+  LEFT JOIN civicrm_membership membership_civireport
                           ON (line_item_civireport.line_total > 0 AND line_item_civireport.entity_id =membership_civireport.id AND line_item_civireport.entity_table = 'civicrm_membership')
 
 LEFT JOIN civicrm_membership_payment pp
@@ -1150,6 +1173,7 @@ WHERE 	line_item_civireport.id IS NOT NULL
                        ({$this->_aliases['civicrm_event']}.is_template IS NULL OR
                         {$this->_aliases['civicrm_event']}.is_template = 0)";
   }
+
   /*
     * Retrieve text for contribution type from pseudoconstant
     */
@@ -1159,12 +1183,13 @@ WHERE 	line_item_civireport.id IS NOT NULL
     }
     $contactID = $row['civicrm_contact_id'];
     return "<div id=contact-{$contactID} class='crm-entity'>
-           <div class='crm-editable crmf-nick_name crm-editable-enabled crmapiaction-create'>
-           " . $value . "</div>";
+           <span class='crm-editable crmf-nick_name crm-editable-enabled' data-action='create'>
+           " . $value . "</span></div>";
   }
+
   /*
-    * Retrieve text for contribution type from pseudoconstant
-    */
+   * Retrieve text for contribution type from pseudoconstant
+   */
   function alterContributionType($value, &$row) {
     return is_string(CRM_Contribute_PseudoConstant::contributionType($value, FALSE)) ? CRM_Contribute_PseudoConstant::contributionType($value, FALSE) : '';
   }
