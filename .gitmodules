@@ -1,3 +1,4 @@
 [submodule "drupal"]
 	path = drupal
-	url = git@github.com:fuzionnz/civicrm-drupal7.git
+	url = git@github.com:fuzionnz/civicrm-drupal6.git
+ efd9d04c27ea1ad0573803f805e844f78eb09449
