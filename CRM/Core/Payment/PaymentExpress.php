@@ -159,21 +159,33 @@ class CRM_Core_Payment_PaymentExpress extends CRM_Core_Payment {
          */
 
     $privateData = "a={$params['contactID']},b={$params['contributionID']},c={$params['contributionTypeID']},d={$params['invoiceID']}";
-
+    // we need to be careful the total string isn't too long
+    $merchantRef = substr($params['contactID'] . "-" . $params['contributionID'] . " " . substr($params['description'], 27, 20), 0, 24);
     if ($component == 'event') {
       $privateData .= ",f={$params['participantID']},g={$params['eventID']}";
-      $merchantRef = "event registration";
     }
     elseif ($component == 'contribute') {
-      $merchantRef = "Charitable Contribution";
       $membershipID = CRM_Utils_Array::value('membershipID', $params);
       if ($membershipID) {
         $privateData .= ",e=$membershipID";
       }
     }
 
+    $dpsParams = array(
+      'AmountInput' => str_replace(",", "", number_format($params['amount'], 2)),
+      'CurrencyInput' => $params['currencyID'],
+      'MerchantReference' => $merchantRef,
+      'TxnData1' => $params['qfKey'],
+      'TxnData2' => $privateData,
+      'TxnData3' => $component,
+      'TxnType' => 'Purchase',
+      // Leave this empty for now, causes an error with DPS if we populate it
+      'TxnId' => '',
+      'UrlFail' => $url,
+      'UrlSuccess' => $url,
+    );
     // Allow further manipulation of params via custom hooks
-    CRM_Utils_Hook::alterPaymentProcessorParams($this, $params, $privateData);
+    CRM_Utils_Hook::alterPaymentProcessorParams($this, $params, $dpsParams);
 
     /*  
          *  determine whether method is pxaccess or pxpay by whether signature (mac key) is defined
@@ -190,22 +202,10 @@ class CRM_Core_Payment_PaymentExpress extends CRM_Core_Payment {
 
       require_once 'CRM/Core/Payment/PaymentExpressUtils.php';
 
+      $dpsParams['PxPayUserId'] = $this->_paymentProcessor['user_name'];
+      $dpsParams['PxPayKey'] = $this->_paymentProcessor['password'];
       // Build a valid XML string to pass to DPS
-      $generateRequest = _valueXml(array(
-          'PxPayUserId' => $this->_paymentProcessor['user_name'],
-          'PxPayKey' => $this->_paymentProcessor['password'],
-          'AmountInput' => str_replace(",", "", number_format($params['amount'], 2)),
-          'CurrencyInput' => $params['currencyID'],
-          'MerchantReference' => $merchantRef,
-          'TxnData1' => $params['qfKey'],
-          'TxnData2' => $privateData,
-          'TxnData3' => $component,
-          'TxnType' => 'Purchase',
-          // Leave this empty for now, causes an error with DPS if we populate it
-          'TxnId' => '',
-          'UrlFail' => $url,
-          'UrlSuccess' => $url,
-        ));
+      $generateRequest = _valueXml($dpsParams);
 
       $generateRequest = _valueXml('GenerateRequest', $generateRequest);
       // Get the special validated URL back from DPS by sending them the XML we've generated
@@ -244,18 +244,16 @@ class CRM_Core_Payment_PaymentExpress extends CRM_Core_Payment {
 
       $pxaccess = new PxAccess($PxAccess_Url, $PxAccess_Userid, $PxAccess_Key, $Mac_Key);
       $request = new PxPayRequest();
-      $request->setAmountInput(number_format($params['amount'], 2));
-      $request->setTxnData1($params['qfKey']);
-      $request->setTxnData2($privateData);
-      $request->setTxnData3($component);
-      $request->setTxnType("Purchase");
-      $request->setInputCurrency($params['currencyID']);
-      $request->setMerchantReference($merchantRef);
-      $request->setUrlFail($url);
-      $request->setUrlSuccess($url);
-
+      $request->setAmountInput($dpsParams['AmountInput']);
+      $request->setTxnData1($dpsParams['TxnData1']);
+      $request->setTxnData2($dpsParams['TxnData2']);
+      $request->setTxnData3($dpsParams['TxnData3']);
+      $request->setTxnType($dpsParams['TxnType']);
+      $request->setInputCurrency($dpsParams['InputCurrency']);
+      $request->setMerchantReference($dpsParams['MerchantReference']);
+      $request->setUrlFail($dpsParams['UrlFail']);
+      $request->setUrlSuccess($dpsParams['UrlSuccess']);
       $request_string = $pxaccess->makeRequest($request);
-
       CRM_Utils_System::redirect($request_string);
     }
   }
