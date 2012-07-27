@@ -422,11 +422,7 @@ class CRM_Profile_Form extends CRM_Core_Form {
       $profileType = CRM_Core_BAO_UFField::getProfileType($this->_gid);
 
       if ($this->_id) {
-        $contactTypes = CRM_Contact_BAO_Contact::getContactTypes($this->_id);
-        $contactType  = $contactTypes[0];
-
-        array_shift($contactTypes);
-        $contactSubtypes = $contactTypes;
+        list($contactType, $contactSubType) = CRM_Contact_BAO_Contact::getContactTypes($this->_id);
 
         $profileSubType = FALSE;
         if (CRM_Contact_BAO_ContactType::isaSubType($profileType)) {
@@ -435,8 +431,8 @@ class CRM_Profile_Form extends CRM_Core_Form {
         }
 
         if (($profileType != 'Contact' && !$this->_isContactActivityProfile) &&
-            (($profileSubType && !empty($contactSubtypes) && (!in_array($profileSubType,$contactSubtypes))) ||
-             ($profileType != $contactType)
+          (($profileSubType && $contactSubType && ($profileSubType != $contactSubType)) ||
+            ($profileType != $contactType)
           )
         ) {
           $return = TRUE;
@@ -639,7 +635,7 @@ class CRM_Profile_Form extends CRM_Core_Form {
 
   /*
      * Function to validate profile and provided activity Id
-     *                                          
+     *
      * @params Integer $activityId Activity Id
      * @params Integer $gid        Profile Id
      *

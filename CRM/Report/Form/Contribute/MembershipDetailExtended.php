@@ -450,7 +450,11 @@ class CRM_Report_Form_Contribute_MembershipDetailExtended extends CRM_Report_For
     $this->_select = "SELECT " . implode(', ', $select) . " ";
   }
 
+<<<<<<< HEAD
   function from() {
+=======
+ function from() {
+>>>>>>> dd9ba3cfd492c865244f3b45e83b8d418fdc80ab
 
       $this->_from = "
         FROM  civicrm_contribution {$this->_aliases['civicrm_contribution']}
@@ -552,7 +556,16 @@ class CRM_Report_Form_Contribute_MembershipDetailExtended extends CRM_Report_For
   function postProcess() {
     // get the acl clauses built before we assemble the query
     $this->buildACLClause($this->_aliases['civicrm_contact']);
+<<<<<<< HEAD
     parent::postProcess();
+=======
+   //         $this->beginPostProcess( );
+
+        // build query
+     //   $sql = $this->buildQuery( );
+      //  echo $sql;die;
+parent::postProcess();
+>>>>>>> dd9ba3cfd492c865244f3b45e83b8d418fdc80ab
   }
 
   function alterDisplay(&$rows) {

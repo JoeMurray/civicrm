@@ -1439,7 +1439,10 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
 
     //assign to template for email receipt
     $honor_block_is_active = $this->get('honor_block_is_active');
-
+    $honorParams = CRM_Utils_Array::value('honor_', $params, array());
+    foreach ($honorParams as $honorfield => $honorValue){
+      $this->assign('honor_' . $honorfield, $honorValue);
+    }
     $this->assign('honor_block_is_active', $honor_block_is_active);
     $this->assign('honor_block_title', CRM_Utils_Array::value('honor_block_title', $this->_values));
 
@@ -1457,7 +1460,7 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
 
     //create honoree contact
     require_once 'CRM/Contribute/BAO/Contribution.php';
-        return CRM_Contribute_BAO_Contribution::createHonorContact( $params, null , $honorParams );
+    return CRM_Contribute_BAO_Contribution::createHonorContact($params, null, $honorParams);
   }
 
   /**

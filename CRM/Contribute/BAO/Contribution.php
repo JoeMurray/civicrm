@@ -590,12 +590,12 @@ class CRM_Contribute_BAO_Contribution extends CRM_Contribute_DAO_Contribution {
     $whereCond = implode(' AND ', $where);
 
     $query = "
-    SELECT  sum( total_amount ) as total_amount, 
-            count( civicrm_contribution.id ) as total_count, 
+    SELECT  sum( total_amount ) as total_amount,
+            count( civicrm_contribution.id ) as total_count,
             currency
       FROM  civicrm_contribution
-INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.contact_id ) 
-     WHERE  $whereCond 
+INNER JOIN  civicrm_contact contact ON ( contact.id = civicrm_contribution.contact_id )
+     WHERE  $whereCond
        AND  ( is_test = 0 OR is_test IS NULL )
        AND  contact.is_deleted = 0
   GROUP BY  currency
@@ -1074,12 +1074,12 @@ AND civicrm_pledge_payment.pledge_id {$componentClause} )
 
     $query = " SELECT total_amount, contribution_status.name as status_id, contribution_status.label as status, payment_instrument.name as payment_instrument, receive_date,
                           trxn_id, {$componentSelect}
-FROM civicrm_contribution 
+FROM civicrm_contribution
 LEFT JOIN civicrm_option_group option_group_payment_instrument ON ( option_group_payment_instrument.name = 'payment_instrument')
 LEFT JOIN civicrm_option_value payment_instrument ON (civicrm_contribution.payment_instrument_id = payment_instrument.value
      AND option_group_payment_instrument.id = payment_instrument.option_group_id )
 LEFT JOIN civicrm_option_group option_group_contribution_status ON (option_group_contribution_status.name = 'contribution_status')
-LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.contribution_status_id = contribution_status.value 
+LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.contribution_status_id = contribution_status.value
                                AND option_group_contribution_status.id = contribution_status.option_group_id )
 {$additionalClause}
 ";
@@ -1192,7 +1192,7 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
   static
   function getSoftContributionList($contact_id, $isTest = 0) {
     $query = "SELECT ccs.id, ccs.amount as amount,
-                         ccs.contribution_id, 
+                         ccs.contribution_id,
                          ccs.pcp_id,
                          ccs.pcp_display_in_roll,
                          ccs.pcp_roll_nickname,
@@ -1207,11 +1207,11 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
                   FROM civicrm_contribution_soft ccs
                        LEFT JOIN civicrm_contribution cc
                               ON ccs.contribution_id = cc.id
-                       LEFT JOIN civicrm_pcp cp 
+                       LEFT JOIN civicrm_pcp cp
                               ON ccs.pcp_id = cp.id
                        LEFT JOIN civicrm_contact contact
                               ON ccs.contribution_id = cc.id AND
-                                 cc.contact_id = contact.id 
+                                 cc.contact_id = contact.id
                        LEFT JOIN civicrm_contribution_type cct
                               ON cc.contribution_type_id = cct.id
                   WHERE cc.is_test = {$isTest} AND ccs.contact_id = " . $contact_id;
@@ -1247,10 +1247,10 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
     $query = "SELECT SUM(amount) as amount,
                          AVG(total_amount) as average,
                          cc.currency
-                  FROM civicrm_contribution_soft  ccs 
-                       LEFT JOIN civicrm_contribution cc 
-                              ON ccs.contribution_id = cc.id 
-                  WHERE cc.is_test = {$isTest} AND 
+                  FROM civicrm_contribution_soft  ccs
+                       LEFT JOIN civicrm_contribution cc
+                              ON ccs.contribution_id = cc.id
+                  WHERE cc.is_test = {$isTest} AND
                         ccs.contact_id = {$contact_id}
                   GROUP BY currency ";
 
@@ -1307,9 +1307,9 @@ LEFT JOIN civicrm_option_value contribution_status ON (civicrm_contribution.cont
     $condition = implode(' OR ', $clauses);
 
     $query = "
-SELECT     ca.id 
-FROM       civicrm_address ca 
-INNER JOIN civicrm_contribution cc ON cc.address_id = ca.id 
+SELECT     ca.id
+FROM       civicrm_address ca
+INNER JOIN civicrm_contribution cc ON cc.address_id = ca.id
            $contactJoin
 WHERE      $condition
 ";
@@ -1596,10 +1596,10 @@ LEFT JOIN  civicrm_contribution contribution ON ( componentPayment.contribution_
             // CRM-8141 update the membership type with the value recorded in log when membership created/renewed
             // this picks up membership type changes during renewals
             $sql = "
-SELECT    membership_type_id 
-FROM      civicrm_membership_log 
-WHERE     membership_id=$membership->id 
-ORDER BY  id DESC 
+SELECT    membership_type_id
+FROM      civicrm_membership_log
+WHERE     membership_id=$membership->id
+ORDER BY  id DESC
 LIMIT     1;";
             require_once 'CRM/Core/DAO.php';
             $dao = new CRM_Core_DAO;
@@ -1787,7 +1787,7 @@ WHERE     c.id = $contributionId";
     $fromClause = "civicrm_contribution contribution";
     $whereConditions = array("contribution.contact_id = {$contactId}");
     if ($includeSoftCredit) {
-      $fromClause .= " LEFT JOIN civicrm_contribution_soft softContribution 
+      $fromClause .= " LEFT JOIN civicrm_contribution_soft softContribution
                                              ON ( contribution.id = softContribution.contribution_id )";
       $whereConditions[] = " softContribution.contact_id = {$contactId}";
     }
@@ -1796,7 +1796,7 @@ WHERE     c.id = $contributionId";
     }
     $whereClause = " contribution.is_test = 0 AND ( " . implode(' OR ', $whereConditions) . " )";
 
-    $query = "       
+    $query = "
    SELECT  count( contribution.id ) count
      FROM  {$fromClause}
     WHERE  {$whereClause}";
@@ -1835,9 +1835,9 @@ WHERE     c.id = $contributionId";
 
     if ($activityTypeId && $contributorId) {
       $activityQuery = "
-SELECT source_contact_id 
-  FROM civicrm_activity 
- WHERE activity_type_id   = %1 
+SELECT source_contact_id
+  FROM civicrm_activity
+ WHERE activity_type_id   = %1
    AND source_record_id   = %2";
 
       $params = array(1 => array($activityTypeId, 'Integer'),

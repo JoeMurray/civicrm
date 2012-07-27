@@ -1129,7 +1129,7 @@ class CRM_Event_Form_Registration_Register extends CRM_Event_Form_Registration {
   /*
      *Function to process Registration of free event
      *
-     *@param  array $param Form valuess 
+     *@param  array $param Form valuess
      *@param  int contactID
      *
      *@return None

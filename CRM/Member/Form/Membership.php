@@ -255,10 +255,10 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
       }
       else {
         $contributionId = CRM_Core_DAO::singleValueQuery("
-  SELECT contribution_id 
-  FROM civicrm_membership_payment 
-  WHERE membership_id = $this->_id 
-  ORDER BY contribution_id 
+  SELECT contribution_id
+  FROM civicrm_membership_payment
+  WHERE membership_id = $this->_id
+  ORDER BY contribution_id
   DESC limit 1");
 
         if ($contributionId) {
@@ -536,7 +536,7 @@ class CRM_Member_Form_Membership extends CRM_Member_Form {
         if (!empty($recurProcessor)) {
           if (!empty($membershipType)) {
             $sql = '
-SELECT  id, 
+SELECT  id,
         auto_renew,
         duration_unit,
         duration_interval
@@ -660,18 +660,19 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
       //add field for amount to allow an amount to be entered that differs from minimum
       $this->add('text', 'total_amount', ts('Amount'));
     }
-         if ($this->_context != 'standalone') {
-           //CRM-10223 - allow contribution to be recorded against different contact
-           // causes a conflict in standalone mode so skip in standalone for now
-           $this->addElement('checkbox', 'contribution_contact', ts('Record Payment from a Different Contact?'));
-           $this->add( 'select', 'honor_type_id', ts('Membership payment is : '),
-                        array( '' => ts( '-') ) + CRM_Core_PseudoConstant::honor() );
-                        require_once 'CRM/Contact/Form/NewContact.php';
-           CRM_Contact_Form_NewContact::buildQuickForm($this,1, null, false,'contribution_');
-         }
 
-        $this->addElement( 'checkbox',
-                           'send_receipt',
+    if ($this->_context != 'standalone') {
+      //CRM-10223 - allow contribution to be recorded against different contact
+      // causes a conflict in standalone mode so skip in standalone for now
+      $this->addElement('checkbox', 'contribution_contact', ts('Record Payment from a Different Contact?'));
+      $this->add( 'select', 'honor_type_id', ts('Membership payment is : '),
+                        array( '' => ts( '-') ) + CRM_Core_PseudoConstant::honor() );
+      require_once 'CRM/Contact/Form/NewContact.php';
+      CRM_Contact_Form_NewContact::buildQuickForm($this,1, null, false,'contribution_');
+    }
+
+    $this->addElement('checkbox',
+      'send_receipt',
                            ts('Send Confirmation and Receipt?'), null,
                            array( 'onclick' => "showHideByValue( 'send_receipt', '', 'notice', 'table-row', 'radio', false); showHideByValue( 'send_receipt', '', 'fromEmail', 'table-row', 'radio', false);" ) );
 

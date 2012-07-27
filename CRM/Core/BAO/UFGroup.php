@@ -1593,6 +1593,9 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
         } else if (!empty($prefix)){
           $name = $prefix ."[$fieldName]";
         }
+    else if (!empty($prefix)){
+      $name = $prefix ."[$fieldName]";
+    }
         else {
       $name = $fieldName;
     }
