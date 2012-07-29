@@ -120,7 +120,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
     if(!empty($this->_rollup ) && !empty($this->_groupBysArray)){
       $this->assignSubTotalLines($rows);
     }
-    
+
     list($firstRow) = $rows;
     // no result to alter
     if (empty($firstRow)) {
@@ -469,8 +469,9 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           'title' => ts('Event Type'),
           ),
         ),
-      ),
-    );
+      )
+    )
+  );
   }
 
   function getContributionColumns() {
