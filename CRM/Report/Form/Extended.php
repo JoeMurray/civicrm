@@ -469,9 +469,8 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           'title' => ts('Event Type'),
           ),
         ),
-      )
-    )
-  );
+      ),
+    );
   }
 
   function getContributionColumns() {
