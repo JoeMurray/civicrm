@@ -947,7 +947,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
       'contribution_from_participant' => array(
         'leftTable' => 'civicrm_participant',
         'rightTable' => 'civicrm_contribution',
-        'callback' => 'joinContributionFromParticipant',
+        'callback' => 'joinContribution:git FromParticipant',
       ),
       'contribution_from_membership' => array(
         'leftTable' => 'civicrm_membership',
