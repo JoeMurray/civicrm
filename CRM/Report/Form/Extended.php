@@ -34,16 +34,17 @@
  */
 require_once 'CRM/Report/Form.php';
 require_once 'CRM/Event/PseudoConstant.php';
-
+require_once 'CRM/Member/PseudoConstant.php';
 class CRM_Report_Form_Extended extends CRM_Report_Form {
   protected $_addressField = FALSE;
 
   protected $_emailField = FALSE;
 
   protected $_summary = NULL;
-
+  protected $_exposeContactID = FALSE;
   protected $_customGroupExtends = array();
-  protected $_baseTable = 'civicrm_contact'; function __construct() {
+  protected $_baseTable = 'civicrm_contact';
+  function __construct() {
 
     parent::__construct();
   }
@@ -60,7 +61,9 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
  */
   function from() {
     if (!empty($this->_baseTable)) {
-      $this->buildACLClause($this->_aliases['civicrm_contact']);
+      if(!empty($this->_aliases['civicrm_contact'])){
+        $this->buildACLClause($this->_aliases['civicrm_contact']);
+      }
       $this->_from = "FROM {$this->_baseTable}   {$this->_aliases[$this->_baseTable]}";
       $availableClauses = $this->getAvailableJoins();
       foreach ($this->fromClauses() as $fromClause) {
@@ -366,14 +369,14 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
         'dao' => 'CRM_Member_DAO_Membership',
         'grouping' => 'member-fields',
         'fields' => array(
+
           'membership_type_id' => array(
             'title' => 'Membership Type',
-            'required' => TRUE,
             'alter_display' => 'alterMembershipTypeID',
+
           ),
           'status_id' => array(
             'title' => 'Membership Status',
-            'required' => TRUE,
             'alter_display' => 'alterMembershipStatusID',
           ),
           'join_date' => NULL,
@@ -383,17 +386,45 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           'end_date' => array(
             'title' => ts('Current Membership Cycle End Date'),
           ),
+
+           'id' => array(
+                'title' => 'Membership ID / Count',
+                'name' => 'id',
+                'statistics' =>
+                array('count' => ts('Number of Memberships')),
+            ),
         ),
         'group_bys' => array(
           'membership_type_id' => array(
             'title' => ts('Membership Type'),
           ),
+          'status_id' => array(
+                'title' => ts('Membership Status'),
+            ),
+           'end_date' => array(
+               'title' => 'Current Membership Cycle End Date',
+              'frequency' => TRUE,
+               'type' => CRM_Utils_Type::T_DATE,
+            )
         ),
         'filters' => array(
           'join_date' => array(
             'type' => CRM_Utils_Type::T_DATE,
             'operatorType' => CRM_Report_Form::OP_DATE,
           ),
+            'membership_end_date' => array(
+                'name' => 'end_date',
+                'title' => 'Membership Expiry',
+                'type' => CRM_Utils_Type::T_DATE,
+                'operatorType' => CRM_Report_Form::OP_DATE,
+            ),
+            'membership_status_id' => array(
+                'name' => 'status_id',
+                'title' => 'Membership Status',
+                'type' => CRM_Utils_Type::T_INT,
+                'options' => CRM_Member_PseudoConstant::membershipStatus(),
+                'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+            ),
         ),
       ),
     );
@@ -915,7 +946,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
       'contribution_from_participant' => array(
         'leftTable' => 'civicrm_participant',
         'rightTable' => 'civicrm_contribution',
-        'callback' => 'joinContributionFromParticipant',
+        'callback' => 'joinContribution:git FromParticipant',
       ),
       'contribution_from_membership' => array(
         'leftTable' => 'civicrm_membership',
@@ -1156,12 +1187,12 @@ WHERE 	line_item_civireport.id IS NOT NULL
 
   function joinContactFromParticipant() {
     $this->_from .= " LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
-                          ON {$this->_aliases[civicrm_participant]}.contact_id = {$this->_aliases['civicrm_contact']}.id";
+                          ON {$this->_aliases['civicrm_participant']}.contact_id = {$this->_aliases['civicrm_contact']}.id";
   }
 
   function joinContactFromMembership() {
     $this->_from .= " LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
-                          ON {$this->_aliases[civicrm_membership]}.contact_id = {$this->_aliases['civicrm_contact']}.id";
+                          ON {$this->_aliases['civicrm_membership']}.contact_id = {$this->_aliases['civicrm_contact']}.id";
   }
 
   function joinContactFromContribution() {
