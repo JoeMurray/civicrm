@@ -103,7 +103,7 @@ class CRM_Bridge_OG_CiviCRM {
         if ($op == 'add') {
           og_group($ogID, array('entity' => user_load($drupalID)));
           if ($admin) {
-            og_role_grant($ogID, $drupalID); // 3 is administrator by default
+            og_role_grant($ogID, $drupalID, 3); // 3 is administrator by default
           }
         }
         else {
