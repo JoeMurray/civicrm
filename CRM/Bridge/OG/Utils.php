@@ -73,7 +73,14 @@ class CRM_Bridge_OG_Utils {
     if (strpos($source, 'OG Sync Group') !== FALSE) {
       preg_match('/:(\d+):$/', $source, $matches);
       if (is_numeric($matches[1])) {
-        return $matches[1];
+        $ogID = $matches[1];
+        if (strpos($source, 'OG Sync Group ACL') !== FALSE) {
+          $admin = TRUE;
+        }
+        else {
+          $admin = FALSE;
+        }
+        return array($ogID, $admin);
       }
     }
     if ($abort) {

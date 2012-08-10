@@ -47,7 +47,7 @@ class CRM_Bridge_OG_CiviCRM {
   static
   function groupAdd($groupID, $group) {
     require_once 'CRM/Bridge/OG/Utils.php';
-    $ogID = CRM_Bridge_OG_Utils::ogID($groupID, FALSE);
+    list($ogID) = CRM_Bridge_OG_Utils::ogID($groupID, FALSE);
 
     $node = new StdClass();
     if ($ogID) {
@@ -79,19 +79,20 @@ class CRM_Bridge_OG_CiviCRM {
   static
   function groupDelete($groupID, $group) {
     require_once 'CRM/Bridge/OG/Utils.php';
-    $ogID = CRM_Bridge_OG_Utils::ogID($groupID, FALSE);
+    list($ogID) = CRM_Bridge_OG_Utils::ogID($groupID, FALSE);
     if (!$ogID) {
       return;
     }
-
     node_delete($ogID);
   }
 
   static
   function groupContact($groupID, $contactIDs, $op) {
     require_once 'CRM/Bridge/OG/Utils.php';
-    $ogID = CRM_Bridge_OG_Utils::ogID($groupID, FALSE);
-    if (!$ogID) {
+
+    // Get og id
+    list($ogID, $admin) = CRM_Bridge_OG_Utils::ogID($groupID, FALSE);
+    if (empty($ogID)) {
       return;
     }
 
@@ -101,6 +102,9 @@ class CRM_Bridge_OG_CiviCRM {
       if ($drupalID) {
         if ($op == 'add') {
           og_group($ogID, array('entity' => user_load($drupalID)));
+          if ($admin) {
+            og_role_grant($ogID, $drupalID); // 3 is administrator by default
+          }
         }
         else {
           og_ungroup($ogID, 'user', user_load($drupalID));
