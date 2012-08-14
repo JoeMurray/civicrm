@@ -850,6 +850,11 @@ class CRM_Report_Form extends CRM_Core_Form {
       $this->addElement('select', 'groups', ts('Group'),
         array('' => ts('- select group -')) + CRM_Core_PseudoConstant::staticGroup()
       );
+      if(is_array($this->_add2GroupcontactTables) && count($this->_add2GroupcontactTables > 1)){
+        $this->addElement('select', 'btn_group_contact', ts('Contact to Add'),
+          array('' => ts('- choose contact -')) + $this->_add2GroupcontactTables
+        );
+      }
       $this->assign('group', TRUE);
     }
 
@@ -3064,24 +3069,27 @@ LEFT JOIN civicrm_contact {$field['alias']} ON {$field['alias']}.id = {$this->_a
                 }
               }
 
-              function add2group($groupID) {
-                if (is_numeric($groupID) && isset($this->_aliases['civicrm_contact'])) {
-                  require_once 'CRM/Contact/BAO/GroupContact.php';
-                  $select = "SELECT DISTINCT {$this->_aliases['civicrm_contact']}.id AS addtogroup_contact_id, ";
-                  $select = str_ireplace('SELECT SQL_CALC_FOUND_ROWS ', $select, $this->_select);
+  function add2group($groupID) {
+    if (is_numeric($groupID) && isset($this->_aliases['honor_civicrm_contact'])) {
+      require_once 'CRM/Contact/BAO/GroupContact.php';
 
-                  $sql = "{$select} {$this->_from} {$this->_where} {$this->_groupBy} {$this->_having} {$this->_orderBy}";
-                  $dao = CRM_Core_DAO::executeQuery($sql);
+      $contact = $this->_submitValues['btn_group_contact'];
+      $select = "SELECT DISTINCT {$this->_aliases[$contact]}.id AS addtogroup_contact_id";
+  //    $select = str_ireplace('SELECT SQL_CALC_FOUND_ROWS ', $select, $this->_select);
 
-                  $contact_ids = array();
-                  // Add resulting contacts to group
-                  while ($dao->fetch()) {
-                    $contact_ids[$dao->addtogroup_contact_id] = $dao->addtogroup_contact_id;
-                  }
+      $sql = "{$select} {$this->_from} {$this->_where} AND {$this->_aliases[$contact]}.id IS NOT NULL {$this->_groupBy}  {$this->_having} {$this->_orderBy}";
 
-                  CRM_Contact_BAO_GroupContact::addContactsToGroup($contact_ids, $groupID);
-                  CRM_Core_Session::setStatus(ts("Listed contact(s) have been added to the selected group."));
-                }
-              }
+      $dao = CRM_Core_DAO::executeQuery($sql);
+
+      $contact_ids = array();
+      // Add resulting contacts to group
+      while ($dao->fetch()) {
+        $contact_ids[$dao->addtogroup_contact_id] = $dao->addtogroup_contact_id;
+      }
+
+      CRM_Contact_BAO_GroupContact::addContactsToGroup($contact_ids, $groupID);
+      CRM_Core_Session::setStatus(ts("Listed contact(s) have been added to the selected group."));
+    }
+  }
             }
 
