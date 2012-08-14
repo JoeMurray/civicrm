@@ -1481,11 +1481,17 @@ WHERE  id = %1";
    *
    */
   public static function &visibility($column = 'label') {
-    if (!self::$visibility) {
-      require_once 'CRM/Core/OptionGroup.php';
-      self::$visibility = CRM_Core_OptionGroup::values('visibility', FALSE, FALSE, FALSE, NULL, $column);
+    require_once 'CRM/Core/OptionGroup.php';
+
+    if (!isset(self::$visibility)) {
+      self::$visibility = array( );
     }
-    return self::$visibility;
+
+    if (!isset(self::$visibility[$column])) {
+      self::$visibility[$column] = CRM_Core_OptionGroup::values('visibility', FALSE, FALSE, FALSE, NULL, $column);
+    }
+
+    return self::$visibility[$column];
   }
 
   /**
