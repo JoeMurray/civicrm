@@ -377,7 +377,7 @@ class CRM_Contact_BAO_GroupContact extends CRM_Contact_DAO_GroupContact {
       $permission = ' ( 1 ) ';
     }
     else {
-      $permission = CRM_Core_Permission::whereClause(CRM_Core_Permission::VIEW, $tables, $whereTables);
+      $permission = CRM_Core_Permission::whereClause(CRM_Core_Permission::VIEW, $tables, $whereTables, 'civicrm_group');
     }
 
     require_once 'CRM/Contact/BAO/Query.php';
