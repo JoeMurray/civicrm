@@ -88,6 +88,7 @@
                     {if $element.contact_ref_id}
                       <a href='/civicrm/contact/view?reset=1&cid={$element.contact_ref_id}'>
                   {/if}
+                  {strip}
                   {if $element.field_type == 'Text' || $element.field_type =='TextArea' ||  $element.field_type =='Radio' }
                     <span data-action="create" class="crm-editable crmf-custom_{$field_id} crm-editable-enabled">
                       {$element.field_value}
@@ -95,6 +96,7 @@
                   {else}
                     {$element.field_value}
                   {/if}
+                  {/strip}
                   {if $element.contact_ref_id}
                     </a>
                   {/if}
