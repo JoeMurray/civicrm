@@ -24,6 +24,8 @@
  +--------------------------------------------------------------------+
 *}
 {* this template is used for adding/editing other (custom) activities. *}
+{include file="CRM/common/crmeditable.tpl"}
+<div id=activity-{$entityID} class='crm-entity'>
 {if $cdType }
    {include file="CRM/Custom/Form/CustomData.tpl"}
 {else}
@@ -363,3 +365,5 @@
     {/if}
     </div>{* end of form block*}
 {/if} {* end of snippet if*}
+</div>
+
