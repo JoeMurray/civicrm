@@ -311,6 +311,7 @@ class CRM_Member_BAO_Membership extends CRM_Member_DAO_Membership {
 
       if(isset($contribution->id) && empty($ids['contribution_id'])){
         $ids['contribution_id'] = $contribution->id;
+        $params['contribution'] = $contribution;
       }
       if (CRM_Utils_Array::value('processPriceSet', $params) &&
         !empty($params['lineItems'])
