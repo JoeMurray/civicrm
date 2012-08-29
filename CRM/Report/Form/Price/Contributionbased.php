@@ -60,4 +60,15 @@ class CRM_Report_Form_Price_Contributionbased extends CRM_Report_Form_Extended {
         'priceField_from_lineItem'
       );
     }
+
+    function selectClause($tableName, $groupBys, $fieldName, $field){
+      if($tableName == 'civicrm_contribution' && $fieldName == 'total_amount'){
+        $stat = 'sum';
+        $label = 'Total Amount';
+        $this->_columnHeaders["{$tableName}_{$fieldName}_{$stat}"]['title'] = $label;
+        $this->_columnHeaders["{$tableName}_{$fieldName}_{$stat}"]['type'] = $field['type'];
+        return "sum(ifnull( line_item_civireport.line_total,contribution_civireport.total_amount)) as civicrm_contribution_total_amount_sum";
+      }
+    }
 }
+
