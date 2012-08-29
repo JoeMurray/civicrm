@@ -501,8 +501,7 @@ class CRM_Report_Form_Extended extends CRM_Report_Form {
           ),
         ),
       )
-    )
-  );
+    );
   }
 
   function getContributionColumns() {
@@ -1152,7 +1151,7 @@ FROM civicrm_contribution contribution_civireport_direct
 LEFT JOIN civicrm_membership_payment pp ON contribution_civireport_direct.id = pp.contribution_id
 LEFT JOIN civicrm_membership p ON pp.membership_id = p.id
 LEFT JOIN civicrm_line_item line_item_civireport ON (line_item_civireport.line_total > 0 AND line_item_civireport.entity_id = p.id AND line_item_civireport.entity_table = 'civicrm_membership')
-WHERE 	line_item_civireport.id IS NOT NULL
+WHERE  line_item_civireport.id IS NOT NULL
 ) as {$this->_aliases['civicrm_line_item']}
   ON {$this->_aliases['civicrm_line_item']}.contid = {$this->_aliases['civicrm_contribution']}.id
 
