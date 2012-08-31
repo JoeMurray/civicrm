@@ -47,7 +47,7 @@ class CRM_Report_Form_Contact_LoggingDetail extends CRM_Logging_ReportDetail {
     $this->tables[] = 'civicrm_address';
     $this->tables[] = 'civicrm_note';
     $this->tables[] = 'civicrm_relationship';
-
+    $this->interval = '15 MINUTE';
     $this->detail = 'logging/contact/detail';
     $this->summary = 'logging/contact/summary';
 
@@ -76,6 +76,20 @@ class CRM_Report_Form_Contact_LoggingDetail extends CRM_Logging_ReportDetail {
             JOIN civicrm_contact whom ON (l.id = whom.id)
             WHERE log_action = 'Update' AND log_conn_id = %1 AND log_date = %2 ORDER BY log_date DESC LIMIT 1
         ";
+  }
+
+  function alterDisplay(&$rows) {
+    foreach ($rows as $key => &$row) {
+      if(!empty($row['contact_id'])){
+        $dao = CRM_Core_DAO::executeQuery("SELECT display_name FROM civicrm_contact WHERE id = {$row['contact_id']}");
+        while($dao->fetch()){
+          $display_name = $dao->display_name;
+        }
+        $row['field'] .= " for $display_name";
+        $row['field_link'] = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $row['contact_id']);
+        $row['field_hover'] = ts("See this contact");
+      }
+  }
   }
 }
 
