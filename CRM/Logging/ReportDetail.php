@@ -184,7 +184,7 @@ class CRM_Logging_ReportDetail extends CRM_Report_Form {
         }
       }
 
-      $rows[] = array('field' => $field . " (id: {$diff['id']})", 'from' => $from, 'to' => $to);
+      $rows[] = array('field' => $field . " (id: {$diff['id']})", 'from' => $from, 'to' => $to, 'contact_id' => $diff['contact_id']);
     }
 
     return $rows;
