@@ -223,6 +223,11 @@ class CRM_Report_Form extends CRM_Core_Form {
   public $_columnHeaders = array();
   public $_orderBy = NULL;
   public $_groupBy = NULL;
+  /*
+   * Array of tables aliases for which the add to group option should be offered
+   * (contact tables)
+   */
+  public $_add2GroupcontactTables = array();
 
   /**
    *
