@@ -1720,7 +1720,8 @@ WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
             continue;
           }
 
-          if (!empty($this->_params['group_bys']) && CRM_Utils_Array::value($fieldName, $this->_params['group_bys'])) {
+          if (!empty($this->_params['group_bys']) && CRM_Utils_Array::value($fieldName, $this->_params['group_bys'])
+               && !empty($this->_params['group_bys_freq'])) {
             switch (CRM_Utils_Array::value($fieldName, $this->_params['group_bys_freq'])) {
               case 'YEARWEEK':
                 $select[]       = "DATE_SUB({$field['dbAlias']}, INTERVAL WEEKDAY({$field['dbAlias']}) DAY) AS {$tableName}_{$fieldName}_start";
