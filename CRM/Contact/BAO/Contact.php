@@ -1726,7 +1726,6 @@ ORDER BY civicrm_email.is_primary DESC";
   static function formatProfileContactParams(&$params, &$fields, $contactID = NULL,
     $ufGroupId = NULL, $ctype = NULL, $skipCustom = FALSE
   ) {
-
     $data = $contactDetails = array();
 
     // get the contact details (hier)
@@ -1973,13 +1972,11 @@ ORDER BY civicrm_email.is_primary DESC";
           }
 
           $type = CRM_Utils_Array::value('contact_sub_type', $data) ? $data['contact_sub_type'] : $data['contact_type'];
-
           // we only interested in contact or address related custom fields here
           $checkForNonPresence = array('Contact', 'Individual', 'Household', 'Organization', 'Address');
-          if (CRM_Core_BAO_CustomGroup::checkCustomField($customFieldId, $checkForNonPresence)) {
+          if (CRM_Core_BAO_CustomGroup::checkCustomField($customFieldId, $checkForNonPresence)){
             continue;
           }
-
           CRM_Core_BAO_CustomField::formatCustomField($customFieldId,
             $data['custom'],
             $value,
@@ -2000,6 +1997,9 @@ ORDER BY civicrm_email.is_primary DESC";
                 }
               }
             }
+          }
+          if(substr($key,0, 6) == 'custom' && substr($key,-4) == 'time'){
+            continue;
           }
           $data[$key] = $value;
         }
