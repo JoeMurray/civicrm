@@ -1262,18 +1262,31 @@ function _civicrm_api_get_custom_fields($entity, &$params) {
   if (strtolower($entity) == 'contact') {
     $entity = CRM_Utils_Array::value('contact_type', $params);
   }
+  $retrieveOnlyParent = FALSE;
+  // we could / should probably test for other subtypes here - e.g. activity_type_id
+  if($entity == 'Contact'){
+    empty($params['contact_sub_type']);
+  }
   $customfields = CRM_Core_BAO_CustomField::getFields($entity,
     FALSE,
     FALSE,
     CRM_Utils_Array::value('contact_sub_type', $params, FALSE),
     NULL,
-    empty($params['contact_sub_type']),
+    $retrieveOnlyParent,
     FALSE,
     FALSE
   );
+  // find out if we have any requests to resolve options
+  $getoptions = CRM_Utils_Array::value('get_options', CRM_Utils_Array::value('options',$params));
+  if(!is_array($getoptions)){
+      $getoptions = array($getoptions);
+  }
 
   foreach ($customfields as $key => $value) {
     $customfields['custom_' . $key] = $value;
+   if(in_array('custom_' . $key, $getoptions)){
+     $customfields['custom_' . $key]['options'] = CRM_Core_BAO_CustomOption::valuesByID($key);
+   }
     unset($customfields[$key]);
   }
   return $customfields;
