@@ -503,6 +503,17 @@ class CRM_Member_BAO_MembershipType extends CRM_Member_DAO_MembershipType {
     }
     $statusDetails = CRM_Member_BAO_MembershipStatus::getMembershipStatus($statusID);
 
+    if ( $membershipTypeDetails['period_type']   == 'fixed' &&
+      $membershipTypeDetails['duration_unit'] == 'month' &&
+      $membershipTypeDetails['duration_interval'] % 12 == 1 ) {
+      // CRM-10585
+      // Special case for annual/bi-annual/etc fixed-month memberships. The duration includes an extra month
+      // used to round up a partial month on the inital join. Renewals should not include the extra month, so
+      // it is removed here. This allows the end date to be extended by an even 12/24/36/etc months without
+      // adding an extra month of membership.
+      $membershipTypeDetails['duration_interval'] = $membershipTypeDetails['duration_interval'] - 1;
+    }
+
     if ($statusDetails['is_current_member'] == 1) {
       $startDate = $membershipDetails[$membershipId]->start_date;
       // CRM=7297 Membership Upsell: we need to handle null end_date in case we are switching
