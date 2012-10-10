@@ -24,6 +24,8 @@
  +--------------------------------------------------------------------+
 *}
 {* this template is used for adding/editing other (custom) activities. *}
+{include file="CRM/common/crmeditable.tpl"}
+<div id=activity-{$entityID} class='crm-entity'>
 {if $cdType }
    {include file="CRM/Custom/Form/CustomData.tpl"}
 {else}
@@ -169,8 +171,11 @@
                 {include file="CRM/$crmDir/Form/Activity/$activityTypeFile.tpl"}
             {/if}
 
-             <tr class="crm-activity-form-block-subject">
-                <td class="label">{$form.subject.label}</td><td class="view-value">{$form.subject.html|crmReplace:class:huge}</td>
+             <tr class="crm-activity-form-block-subject">{strip}
+                <td class="label">{$form.subject.label}</td><td class="view-value">
+                <div data-action="create" class="crm-editable crmf-subject crm-editable-enabled">
+                {$form.subject.html|crmReplace:class:huge}</td>
+                </div>{/strip}
              </tr>
 
            {* CRM-7362 --add campaign to activities *}
@@ -363,3 +368,5 @@
     {/if}
     </div>{* end of form block*}
 {/if} {* end of snippet if*}
+</div>
+
