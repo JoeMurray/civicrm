@@ -422,7 +422,7 @@ function _civicrm_api3_dao_set_filter(&$dao, $params, $unique = TRUE, $entity) {
   $entity = substr($dao->__table, 8);
 
   $allfields = _civicrm_api3_build_fields_array($dao, $unique);
-  
+
   $fields = array_intersect(array_keys($allfields), array_keys($params));
   if (isset($params[$entity . "_id"])) {
     //if entity_id is set then treat it as ID (will be overridden by id if set)
@@ -453,7 +453,7 @@ function _civicrm_api3_dao_set_filter(&$dao, $params, $unique = TRUE, $entity) {
   if (!$fields) {
     return;
   }
-  
+
   foreach ($fields as $field) {
     if (is_array($params[$field])) {
       //get the actual fieldname from db
@@ -1438,15 +1438,16 @@ function _civicrm_api3_validate_integer(&$params, &$fieldname, &$fieldInfo) {
  */
 function _civicrm_api3_validate_string(&$params, &$fieldname, &$fieldInfo) {
   // If fieldname exists in params
-  if ($value = CRM_Utils_Array::value($fieldname, $params)) {
+  $value = CRM_Utils_Array::value($fieldname, $params);
+  if ($value) {
     if ($fieldname == 'currency') {
       if (!CRM_Utils_Rule::currencyCode($value)) {
         throw new Exception("Currency not a valid code: $value");
       }
     }
-    if (CRM_Utils_Array::value('pseudoconstant', $fieldInfo) && !CRM_Utils_Array::value('FKClassName', $fieldInfo)) {
-      // Validate & swap out any pseudoconstants
-      $constant = $fieldInfo['options'];
+    if (!empty ($fieldInfo['options']) || !empty($fieldInfo['enumValues'])) {
+      // Validate & swap out any pseudoconstants / options
+      $constant = CRM_Core_Array::value('options', $fieldInfo) ;
       if (!$constant && ($enum = CRM_Utils_Array::value('enumValues', $fieldInfo))) {
         $constant = explode(',', $enum);
       }
@@ -1455,7 +1456,7 @@ function _civicrm_api3_validate_string(&$params, &$fieldname, &$fieldInfo) {
       if (!isset($constant[$value])) {
         if (!($key = array_search($value, $constant))) {
           throw new Exception("$fieldname `$value` is not valid.");
-        }
+      }
         else {
           $value = $key;
         }
