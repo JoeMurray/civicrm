@@ -120,7 +120,10 @@ function civicrm_api3_generic_getfields($apiRequest) {
       }
     }
     if (array_key_exists('enumValues', $field)) {
-      $metadata[$fieldname]['options'] = explode(',', $field['enumValues']);
+      // use of a space after the comma is inconsistent in xml
+      $enumStr = str_replace(', ', ',', $fieldSpec['enumValues']);
+      $metadata[$fieldname]['options'] = explode(',', $enumStr);
+      return;
     }
   }
   $results[$entity][$action] = civicrm_api3_create_success($metadata, $apiRequest['params'], NULL, 'getfields');
