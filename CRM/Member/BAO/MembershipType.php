@@ -380,6 +380,9 @@ class CRM_Member_BAO_MembershipType extends CRM_Member_DAO_MembershipType {
         //month irrespective when you join during the month,
         //so if you join on 1 Jan or 15 Jan your start
         //date will always be 1 Jan
+        if($actualStartDate >= $membershipTypeDetails['fixed_period_rollover_day']){
+          $fixed_period_rollover = True;
+        }
         if (!$startDate) {
           $actualStartDate = $startDate = $year . '-' . $month . '-01';
         }
@@ -420,6 +423,7 @@ class CRM_Member_BAO_MembershipType extends CRM_Member_DAO_MembershipType {
           if ($fixed_period_rollover) {
             //Fix Me: Currently we don't allow rollover if
             //duration interval is month
+            $month += 1;
           }
           break;
 
