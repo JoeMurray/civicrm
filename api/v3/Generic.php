@@ -48,12 +48,14 @@ function civicrm_api3_generic_getfields($apiRequest) {
       return $results[$entity];
     }
   }
+
   // determines whether to use unique field names - seem comment block above
   $unique = TRUE;
   if (isset($results[$entity . $subentity]) && CRM_Utils_Array::value($action, $results[$entity])
     && empty($apiRequest['params']['options'])) {
     return $results[$entity . $subentity][$action];
   }
+
   // defaults based on data model and API policy
   switch ($action) {
     case 'getfields':
@@ -73,6 +75,7 @@ function civicrm_api3_generic_getfields($apiRequest) {
         $metadata['id'] = $metadata[$lcase_entity . '_id'];
         $metadata['id']['api.aliases'] = array($lcase_entity . '_id');
         unset($metadata[$lcase_entity . '_id']);
+
       }
       break;
 
@@ -104,9 +107,9 @@ function civicrm_api3_generic_getfields($apiRequest) {
   }
 
   foreach ($metadata as $fieldname => $field) {
-    if (array_key_exists('pseudoconstant', $field)&& (!CRM_Utils_Array::value('FKClassName',$field) ||
+    if ((array_key_exists('pseudoconstant', $field) && (!CRM_Utils_Array::value('FKClassName',$field)) ||
         (!empty($options) && !empty($options['get_options'])))) {
-      $param = array('version' => 3, 'name' => $field['pseudoconstant']['name']);
+      $param = array('version' => 3, 'name' => $field['pseudoconstant']);
       if (isset ( $field['pseudoconstant']['class'])) {
         $param['class'] = $field['pseudoconstant']['class'];
       };
@@ -115,15 +118,14 @@ function civicrm_api3_generic_getfields($apiRequest) {
       };
       $options = civicrm_api('constant', 'get', $param);
       if (is_array(CRM_Utils_Array::value('values', $options))) {
-
         $metadata[$fieldname]['options'] = $options['values'];
       }
     }
     if (array_key_exists('enumValues', $field)) {
       // use of a space after the comma is inconsistent in xml
-      $enumStr = str_replace(', ', ',', $fieldSpec['enumValues']);
+      $enumStr = str_replace(', ', ',', $field['enumValues']);
       $metadata[$fieldname]['options'] = explode(',', $enumStr);
-      return;
+      continue;
     }
   }
   $results[$entity][$action] = civicrm_api3_create_success($metadata, $apiRequest['params'], NULL, 'getfields');
