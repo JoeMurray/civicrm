@@ -1176,8 +1176,14 @@ AND civicrm_membership.is_test = %2";
     $form->assign('membership_assign', TRUE);
 
     $form->set('membershipTypeID', $membershipParams['selectMembership']);
-
-    $membershipTypeID = $membershipParams['selectMembership'];
+    if(is_numeric($membershipParams['selectMembership'])){
+      // am putting this here in case - in the flow that I have tested this is an array
+      // but it may be there are other flows
+      $membershipTypeID = $membershipParams['selectMembership'];
+    }
+    else{
+      $membershipTypeID = $membershipParams['selectMembership'][0];
+    }
     $membershipDetails = self::buildMembershipTypeValues($form, $membershipTypeID);
 
     $form->assign('membership_name', CRM_Utils_Array::value('name', $membershipDetails));
