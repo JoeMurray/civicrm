@@ -193,17 +193,6 @@ INSERT INTO
 VALUES
    (@option_group_id_act, {localize}'BULK SMS'{/localize}, @max_wt, 'BULK SMS', NULL, 1, NULL, @max_wt, {localize}'BULK SMS'{/localize}, 0, 1, 1, NULL, NULL);
 
-ALTER TABLE `civicrm_mailing_recipients` ADD `phone_id` int(10) unsigned DEFAULT NULL;
-
-ALTER TABLE `civicrm_mailing_recipients` ADD CONSTRAINT `FK_civicrm_mailing_recipients_phone_id` FOREIGN KEY (`phone_id`) REFERENCES `civicrm_phone` (`id`) ON DELETE CASCADE;
-
-ALTER TABLE `civicrm_mailing_event_queue` ADD `phone_id` int(10) unsigned DEFAULT NULL;
-
-ALTER TABLE `civicrm_mailing_event_queue` ADD CONSTRAINT `FK_civicrm_mailing_event_queue_phone_id` FOREIGN KEY (`phone_id`) REFERENCES `civicrm_phone` (`id`) ON DELETE CASCADE;
-
-ALTER TABLE `civicrm_mailing_event_queue` CHANGE `email_id` `email_id` int(10) unsigned DEFAULT NULL;
-ALTER TABLE `civicrm_mailing_recipients` CHANGE `email_id` `email_id` int(10) unsigned DEFAULT NULL;
-
 -- CRM-9982
 ALTER TABLE `civicrm_contribution_page` ADD COLUMN is_confirm_enabled tinyint(4) DEFAULT '1';
 
@@ -215,13 +204,13 @@ ALTER TABLE `civicrm_contribution_page` ADD COLUMN is_confirm_enabled tinyint(4)
   {/if}
     ALTER TABLE civicrm_group ADD title_{$locale} VARCHAR(64);
     ALTER TABLE civicrm_group ADD UNIQUE KEY `UI_title_{$locale}` (title_{$locale});
-    
-    ALTER TABLE `civicrm_batch` CHANGE `label_{$locale}` `title_{$locale}` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Friendly Name.'; 
+
+    ALTER TABLE `civicrm_batch` CHANGE `label_{$locale}` `title_{$locale}` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Friendly Name.';
     UPDATE civicrm_group SET title_{$locale} = title;
-  
+
     ALTER TABLE civicrm_survey
      ADD COLUMN thankyou_title_{$locale} varchar(255)    COMMENT 'Title for Thank-you page (header title tag, and display at the top of the page).',
-     ADD COLUMN thankyou_text_{$locale}  text    COMMENT 'text and html allowed. displayed above result on success page';    
+     ADD COLUMN thankyou_text_{$locale}  text    COMMENT 'text and html allowed. displayed above result on success page';
   {/foreach}
 
   ALTER TABLE civicrm_group DROP INDEX `UI_title`;
