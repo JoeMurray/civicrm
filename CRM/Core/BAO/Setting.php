@@ -333,14 +333,19 @@ class CRM_Core_BAO_Setting extends CRM_Core_DAO_Setting {
    * @static
    * @access public
    */
-  static
-  function setItems(&$params, $domains = null) {
+  static function setItems(&$params, $domains = null) {
     if (empty($domains)) {
       $domains[] = CRM_Core_Config::domainID();
     }
     $fields = $config_keys = array();
     $fieldsToSet = self::validateSettingsInput($params, $fields);
+
+    foreach ($fieldsToSet as $settingField => &$settingValue) {
+      self::validateSetting($settingValue, $fields['values'][$settingField]);
+    }
+
     foreach ($domains as $domain) {
+      $result[$domain] = array();
       foreach ($fieldsToSet as $name => $value) {
         if(empty($fields['values'][$name]['config_only'])){
           CRM_Core_BAO_Setting::setItem(
@@ -406,15 +411,8 @@ class CRM_Core_BAO_Setting extends CRM_Core_DAO_Setting {
       $filteredFields = array_intersect_key($settingParams, $fields['values']);
     }
     else {
-      // no filters so we are interested in all - ie. get mode when no filters specified
-      $filteredFields = $fields['values'];
-    }
-    if (!$createMode) {
-      // no validation required
-      return $filteredFields;
-    }
-    foreach ($filteredFields as $settingField => &$settingValue) {
-      self::validateSetting($settingValue, $fields['values'][$settingField]);
+      // no filters so we are interested in all for get mode. In create mode this means nothing to set
+      $filteredFields = $createMode ? array() : $fields['values'];
     }
     return $filteredFields;
   }
@@ -426,6 +424,9 @@ class CRM_Core_BAO_Setting extends CRM_Core_DAO_Setting {
    * @fieldSpec array Metadata for given field (drawn from the xml)
    */
   static function validateSetting(&$value, $fieldSpec) {
+    if($fieldSpec['type'] == 'String' && is_array($value)){
+      $value = CRM_Core_DAO::VALUE_SEPARATOR . implode(CRM_Core_DAO::VALUE_SEPARATOR,$value) . CRM_Core_DAO::VALUE_SEPARATOR;
+    }
     if (empty($fieldSpec['validate_callback'])) {
       return true;
     }
@@ -436,7 +437,6 @@ class CRM_Core_BAO_Setting extends CRM_Core_DAO_Setting {
       }
     }
   }
-
   /**
    * Validate & convert settings input - translate True False to 0 or 1
    *
